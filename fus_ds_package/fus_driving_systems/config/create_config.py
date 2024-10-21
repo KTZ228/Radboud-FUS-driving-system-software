@@ -53,7 +53,7 @@ RAMP_RECT = 'Rectangular - no ramping'
 RAMP_LIN = 'Linear'
 RAMP_TUK = 'Tukey'
 
-config['General']['Ramp shapes'] = '\n'.join([RAMP_RECT, RAMP_LIN, RAMP_TUK])
+config['General']['Ramp shapes'] = '\n'.join([RAMP_RECT, RAMP_LIN, RAMP_TUK, RAMP_SHOTA])
 config['General']['Ramp shape.rect'] = RAMP_RECT
 config['General']['Ramp shape.lin'] = RAMP_LIN
 config['General']['Ramp shape.tuk'] = RAMP_TUK
@@ -229,7 +229,7 @@ config['Equipment.Driving system.' + IGT_DS[1]]['Connection info'] = str(os.path
     'gen_Nijmegen128_2x10_393F.json'))  # should be in the same directory as code
 config['Equipment.Driving system.' + IGT_DS[1]]['Transducer compatibility'] = str('\n'.join(
     IS_TRANS + DUMMIES))
-config['Equipment.Driving system.' + IGT_DS[1]]['Active?'] = str(False)
+config['Equipment.Driving system.' + IGT_DS[1]]['Active?'] = str(True)
 
 config['Equipment.Driving system.' + IGT_DS[2]] = {}
 config['Equipment.Driving system.' + IGT_DS[2]]['Name'] = IGT + ' 128 ch. - 1 x 10 ch.'
@@ -298,7 +298,7 @@ config['Equipment.Driving system.' + IGT_DS[7]]['Connection info'] = str(os.path
     'gen_Nijmegen32_2x10c_71D8.json'))  # should be in the same directory as code
 config['Equipment.Driving system.' + IGT_DS[7]]['Transducer compatibility'] = str('\n'.join(
     IS_TRANS + DUMMIES))
-config['Equipment.Driving system.' + IGT_DS[7]]['Active?'] = str(False)
+config['Equipment.Driving system.' + IGT_DS[7]]['Active?'] = str(True)
 
 config['Equipment.Driving system.' + IGT_DS[8]] = {}
 config['Equipment.Driving system.' + IGT_DS[8]]['Name'] = IGT + ' 32 ch. - 1 x 10 ch.'
