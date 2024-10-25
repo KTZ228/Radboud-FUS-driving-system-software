@@ -44,19 +44,23 @@ from fus_driving_systems import sequence
 seq = sequence.Sequence()
 
 # Number of sequence starting at zero. Currently only used to differentiate and send multiple
-# sequences to the IGT system. Don't change this value if you only using one sequence definition.
+# sequences to the IGT system. Only 0 and 1 are possible. Don't change this value if you only
+# using one sequence definition.
 seq.seq_num = 0
 
 # equipment
 # to check available driving systems: print(driving_system.get_ds_serials())
 # choose one driving system from that list as input
-seq.driving_sys = 'IGT-128-ch_comb_1x10-ch'
+seq.driving_sys = 'IGT-32-ch_comb_2x10-ch'
+use_two_transducers = True  # is true if you are using two transducers simulateneously or interleaved
 
 # to check available transducers: print(transducer.get_tran_serials())
 # choose one transducer from that list as input
 seq.transducer = 'IS_PCD15287_01001'
 
 # set general parameters
+seq.press = 0.25  # [MPa], maximum pressure in free water. NOTE: DIFFERENT THAN SC
+
 seq.oper_freq = 300  # [kHz], operating frequency
 seq.focus = 40  # [mm], focal depth
 
@@ -67,11 +71,27 @@ seq.focus = 40  # [mm], focal depth
 # based on the set focus.
 seq.dephasing_degree = None  # [degrees]: None, [120] or [0, 135, 239, 90]
 
-# THE FEATURE IS NOT ENABLED YET! Use amplitude only for now
-# either set maximum pressure in free water [MPa], voltage [V] or amplitude [%]
-# seq.press = 1  # [MPa], maximum pressure in free water
-# seq.volt = 0  # [V], voltage per channel
-seq.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
+if use_two_transducers:
+    seq2 = sequence.Sequence()
+    
+    seq2.driving_sys = seq.driving_sys.serial
+
+    # to check available transducers: print(transducer.get_tran_serials())
+    # choose one transducer from that list as input
+    seq2.transducer = 'IS_PCD15287_01002'
+
+    # set general parameters
+    seq2.press = 0.5  # [MPa], maximum pressure in free water. NOTE: DIFFERENT THAN SC
+
+    seq2.oper_freq = 300  # [kHz], operating frequency
+    seq2.focus = 80  # [mm], focal depth
+
+    # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
+    # One value (>0) is the degree of dephasing, for example [90] with 4 elements: 1 elem: 0 dephasing,
+    # 2 elem: 90 dephasing, 3 elem: 180 dephasing, 4 elem: 270 dephasing.
+    # When the amount of values match the amount of elements, it will override the calculated phases
+    # based on the set focus.
+    seq2.dephasing_degree = None  # [degrees]: None, [120] or [0, 135, 239, 90]
 
 # # timing parameters # #
 # you can use the TUS Calculator to visualize the timing parameters:
@@ -102,7 +122,7 @@ seq.wait_for_trigger = True
 seq.trigger_option = 'TriggerSequence'
 
 if seq.wait_for_trigger and seq.trigger_option == config['General']['Trigger option.seq']:
-    seq.n_triggers = 5  # number of timings above defined sequence will be triggered
+    seq.n_triggers = 4 # number of timings above defined sequence will be triggered
 
 else:
     seq.pulse_train_rep_int = 200  # [ms], pulse train repetition interval, NOTE: DIFFERENT THAN SC
@@ -111,7 +131,7 @@ else:
     # if you only want one pulse train, keep the value equal to the pulse repetition interval
     # if you only want one pulse train repetition block, keep the value equal to the pulse train
     # repetition interval
-    seq.pulse_train_rep_dur = 0.2  # [s], pulse train repetition duration, NOTE: DIFFERENT THAN SC
+    seq.pulse_train_rep_dur = 2  # [s], pulse train repetition duration, NOTE: DIFFERENT THAN SC
 
 # to get a summary of your entered sequence: print(seq)
 
@@ -141,16 +161,19 @@ try:
     # you can check if the system is still connected by using the following:
     # print(igt_ds.is_connected())
 
+    if use_two_transducers:
+        igt_driving_sys.send_sequence(seq, seq2)
+    else:
+        igt_driving_sys.send_sequence(seq)
+
     # If wait_for_trigger is true, only the sequence is sent and will be executed by the external
     # trigger
     if seq.wait_for_trigger:
-        igt_driving_sys.send_sequence(seq)
         igt_driving_sys.wait_for_trigger(seq)
 
     # If wait_for_trigger is false, the sequence is sent and can be executed directly using the
     # execute_sequence() function
     else:
-        igt_driving_sys.send_sequence(seq)
         igt_driving_sys.execute_sequence(seq)
 
 finally:
