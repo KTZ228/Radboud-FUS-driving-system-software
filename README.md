@@ -21,7 +21,6 @@
   - [👥 Authors](#authors)
   - [✒️ How to cite](#how-to-cite)
 - [💻 Getting Started](#getting-started)
-  - [Setup](#setup)
   - [Install](#install)
   - [Usage](#usage)
 - [🔭 Future Features](#future-features)
@@ -71,7 +70,7 @@ This project is facilitated by the Radboud Focused Ultrasound Initiative. For mo
 
 If you use this package in your research or project, please cite it as follows:
 
-Margely Cornelissen, Stein Fekkes (Radboud University, Nijmegen, The Netherlands) & Erik Dumont (Image Guided Therapy, Pessac, France) (2024), Radboud FUS driving system software (version 1.0)
+Margely Cornelissen, Stein Fekkes (Radboud University, Nijmegen, The Netherlands) & Erik Dumont (Image Guided Therapy, Pessac, France) (2024), Radboud FUS driving system software (version 0.9)
 
 <!-- GETTING STARTED -->
 
@@ -79,32 +78,32 @@ Margely Cornelissen, Stein Fekkes (Radboud University, Nijmegen, The Netherlands
 
 To get a local copy up and running, follow these steps.
 
-## Setup <a name="setup"></a>
-
-Clone this repository to your desired folder:
-
-- Git terminal
-
-	``` sh
-	cd my-folder
-	git clone git@github.com:Donders-Institute/Radboud-FUS-driving-system-software.git
-	```
-	
-- GitHub Desktop
-	1. Click on 'Current repository'.
-	2. Click on 'Add' and select 'Clone repository...'.
-	3. Choose 'URL' and paste the following repository URL: [https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git](https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git)
-	4. Choose your desired folder and clone the repository.
-
 ## Install <a name="install"></a>
 
-Ensure you have Python 3.10 installed and accessible from your command line. If Python is not installed, download it from the [official Python website]{https://www.python.org/downloads/release/python-31011/}. It is not necessary to add Python to your system's PATH during installation,  as virtual environments allow you to manage and switch between Python versions without affecting other projects or code outside the environment..
+*Step 1: Clone this repository to your desired folder*
+	- Git terminal
+
+		``` sh
+		cd my-folder
+		git clone git@github.com:Donders-Institute/Radboud-FUS-driving-system-software.git
+		```
+		
+	- GitHub Desktop
+		1. Click on 'Current repository'.
+		2. Click on 'Add' and select 'Clone repository...'.
+		3. Choose 'URL' and paste the following repository URL: [https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git](https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git)
+		4. Choose your desired folder and clone the repository.
+
+*Step 2: Download Python 3.10*
+Ensure you have Python 3.10 installed and accessible from your command line. If Python is not installed, download it from the [official Python website](https://www.python.org/downloads/release/python-31011/). It is not necessary to add Python to your system's PATH during installation, as virtual environments allow you to manage and switch between Python versions without affecting other projects or code outside the environment.
 
 <div align="center">
   <img src="/images/python_path.png" alt="python_path" width="auto"  height="auto" />
-  
 </div>
 
+**Note**: The script assumes that Python 3.10 is installed. If you have a different version, make sure to adjust the script accordingly or install Python 3.10.
+
+*Step 3: Create and setup a virtual environment*
 Open your command prompt and run the following batch file to set up the virtual environment and install the necessary dependencies. You can use input parameters to customize the environment name or directory, or Python interpreter location. You must either rely on all default or provide all input parameters. 
 
 ```
@@ -123,41 +122,51 @@ The batch file will:
 - Create a virtual environment.
 - Install the required Python packages.
 
-After running the batch file, ensure that the virtual environment is activated and dependencies are installed. You can verify this by:
+*Step 4: Verify the successful setup of the virtual environment*
+After running the batch file, ensure that the virtual environment and dependencies are installed. You can verify this by:
 
-- Checking for the virtual environment in your VENV_DIR directory.
-- Confirming that the required packages are installed.
+- Checking for the virtual environment folder in your VENV_DIR directory.
+	<div align="center">
+	  <img src="/images/verify_venv.png" alt="verify_venv" width="auto"  height="auto" />
+	</div>
 
-### Notes
-- **Python Version**: The script assumes that Python 3.10 is installed. If you have a different version, make sure to adjust the script accordingly or install Python 3.10.
+- Confirming that the fus_driving_systems package is installed in the virtual environment site-packages folder: VENV_DIR/VENV_NAME/Lib/site-packages/.
+	<div align="center">
+	  <img src="/images/verify_fus_package.png" alt="verify_fus_package" width="auto"  height="auto" />
+	</div>
+	
 
 ### Troubleshooting
-If you encounter issues with the batch file not being recognized or errors during execution, ensure that:
+If you encounter issues with the batch file not being recognized or errors occur during execution, ensure that:
 
-- The batch file has the correct permissions to execute.
+- The batch file has the correct permissions to be executed.
 - The repository has been cloned correctly and contains the necessary files.
 
 ## Usage <a name="usage"></a>
 
+*Step 1: Activate your environment*
 With the fus_driving_systems package installed, activate your environment in your command prompt to create and execute sequences. 
 
 ```
 call [VENV_PATH]\Scripts\activate
 ```
 
+*Step 2: Install an IDE*
 While the virtual environment is activated, you can install Spyder or any other IDE of your choice. To install Spyder, run:
 
 ```
 pip install spyder
 ```
 
+*Step 3: Launch the IDE*
 After installing Spyder, you can launch it directly from the command line within the activated virtual environment by running:
 
 ```
 spyder
 ```
 
-Open one of the Python scripts provided in the 'standalone_driving_system_software' directory, which serve as examples of how to create and execute a sequence with a driving system from a specific manufacturer.
+*Step 4: Open the main script*
+Open one of the Python scripts provided in the 'standalone_driving_system_software' directory in the cloned repository, which serve as examples of how to create and execute a sequence with a driving system from a specific manufacturer.
 
 Follow the instructions within the code to understand how to integrate it into your own codebase. Additionally, these scripts can be utilized to explore the functionality of the package before integrating it into your project.
 
@@ -167,7 +176,8 @@ To simplify the process of activating the virtual environment and launching your
 How to use the script:
 1. Ensure that start_env_and_ide.bat is located in a convenient location, such as the root directory of your project or your desktop.
 2. Run the script in one of the following ways:
-	- Open start_venv_and_ide.bat in a text editor and modify the VENV_PATH and IDE variables directly if you prefer not to use command-line arguments. To run the .bat file, just double-click it.
+	- Open start_venv_and_ide.bat in a text editor and modify the VENV_PATH and IDE variables directly if you prefer not to use command-line arguments.
+	  To run the .bat file, just double-click it.
 	- Using the command prompt:
 		```
 		start_venv_and_ide.bat [VENV_PATH] [IDE]
