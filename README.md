@@ -81,19 +81,17 @@ To get a local copy up and running, follow these steps.
 ## Installation <a name="install"></a>
 
 *Step 1: Clone this repository to your desired folder*
-
-	- Git terminal
-
-		``` sh
-		cd my-folder
-		git clone git@github.com:Donders-Institute/Radboud-FUS-driving-system-software.git
-		```
-		
-	- GitHub Desktop
-		1. Click on 'Current repository'.
-		2. Click on 'Add' and select 'Clone repository...'.
-		3. Choose 'URL' and paste the following repository URL: [https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git](https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git)
-		4. Choose your desired folder and clone the repository.
+- Git terminal
+	```
+	sh
+	cd my-folder
+	git clone git@github.com:Donders-Institute/Radboud-FUS-driving-system-software.git
+	```
+- GitHub Desktop
+	1. Click on 'Current repository'.
+	2. Click on 'Add' and select 'Clone repository...'.
+	3. Choose 'URL' and paste the following repository URL: [https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git](https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git)
+	4. Choose your desired folder and clone the repository.
 
 *Step 2: Download Python 3.10* \
 Ensure you have Python 3.10 installed and accessible from your command line. If Python is not installed, download it from the [official Python website](https://www.python.org/downloads/release/python-31011/). It is not necessary to add Python to your system's PATH during installation, as virtual environments allow you to manage and switch between Python versions without affecting other projects or code outside the environment.
