@@ -95,8 +95,7 @@ To get a local copy up and running, follow these steps.
 		3. Choose 'URL' and paste the following repository URL: [https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git](https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git)
 		4. Choose your desired folder and clone the repository.
 
-*Step 2: Download Python 3.10*
-
+*Step 2: Download Python 3.10* \
 Ensure you have Python 3.10 installed and accessible from your command line. If Python is not installed, download it from the [official Python website](https://www.python.org/downloads/release/python-31011/). It is not necessary to add Python to your system's PATH during installation, as virtual environments allow you to manage and switch between Python versions without affecting other projects or code outside the environment.
 
 <div align="center">
@@ -106,8 +105,7 @@ Ensure you have Python 3.10 installed and accessible from your command line. If 
 
 **Note**: The script assumes that Python 3.10 is installed. If you have a different version, make sure to adjust the script accordingly or install Python 3.10.
 
-*Step 3: Create and setup a virtual environment*
-
+*Step 3: Create and setup a virtual environment* \
 Open your command prompt and run the following batch file to set up the virtual environment and install the necessary dependencies. You can use input parameters to customize the environment name or directory, or Python interpreter location. You must either rely on all default or provide all input parameters. 
 
 ```
@@ -119,15 +117,13 @@ create_venv.bat "[PYTHON_INTERPRETER_PATH]" [VENV_NAME] "[VENV_DIR]"
 - VENV_NAME: Specify the name for the virtual environment (e.g., MyEnv). If not provided, it defaults to FUS_DS_PACKAGE.
 - VENV_DIR: Specify the directory for the virtual environment (e.g., C:/Users/Me/Envs). If not provided, it defaults to C:/Users/{USERPROFILE}/Envs.
 
-Example: create_venv.bat "C:\Path\To\Python310\python.exe" FUS_DS_PACKAGE "C:/Users/Me/Envs"
+Example:
+```
+create_venv.bat "C:\Path\To\Python310\python.exe" FUS_DS_PACKAGE "C:/Users/Me/Envs"
+```
+The batch file will create a virtual environment and install the required Python packages.
 
-The batch file will:
-
-- Create a virtual environment.
-- Install the required Python packages.
-
-*Step 4: Verify the successful setup of the virtual environment*
-
+*Step 4: Verify the successful setup of the virtual environment* \
 After running the batch file, ensure that the virtual environment and dependencies are installed. You can verify this by:
 
 - Checking for the virtual environment folder in your VENV_DIR directory.
@@ -149,32 +145,28 @@ If you encounter issues with the batch file not being recognized or errors occur
 
 ## Usage <a name="usage"></a>
 
-*Step 1: Activate your environment*
-
+*Step 1: Activate your environment* \
 With the fus_driving_systems package installed, activate your environment in your command prompt to create and execute sequences. 
 
 ```
 call [VENV_PATH]\Scripts\activate
 ```
 
-*Step 2: Install an IDE*
-
+*Step 2: Install an IDE* \
 While the virtual environment is activated, you can install Spyder or any other IDE of your choice. To install Spyder, run:
 
 ```
 pip install spyder
 ```
 
-*Step 3: Launch the IDE*
-
+*Step 3: Launch the IDE* \
 After installing Spyder, you can launch it directly from the command line within the activated virtual environment by running:
 
 ```
 spyder
 ```
 
-*Step 4: Open the main script*
-
+*Step 4: Open the main script* \
 Open one of the Python scripts provided in the 'standalone_driving_system_software' directory in the cloned repository, which serve as examples of how to create and execute a sequence with a driving system from a specific manufacturer.
 
 Follow the instructions within the code to understand how to integrate it into your own codebase. Additionally, these scripts can be utilized to explore the functionality of the package before integrating it into your project.
