@@ -106,7 +106,7 @@ class IGT(ds.ControlDrivingSystem):
 
         self.sent_seq_nums.append(seq_num)
 
-    def connect(self, connect_info, log_dir='C:\\Temp', log_name='standalone_igt'):
+    def connect(self, connect_info, log_dir='C:\\Temp', log_name='standalone_igt', attempt=0):
         """
         Connects to the IGT ultrasound driving system.
 
@@ -159,8 +159,15 @@ class IGT(ds.ControlDrivingSystem):
             self.listener.waitConnection()
             logger.info('After waitConnection()....')
         except Exception as e:
-            logger.error(f"Error during connection or listener registration: {e}")
-            sys.exit()
+            logger.warning(f"Error during connection or listener registration: {e}")
+            
+            if attempt < 5:
+                logger.warning('Try to disconnect and reconnect...')
+                self.disconnect()
+                self.connect(connect_info, log_dir, log_name, attempt=attempt+1)
+            else:
+                logger.error('Maximum amount for reconnecting is reached. Exit.')
+                sys.exit()
 
         try:
             if self.fus.isConnected():
@@ -173,7 +180,15 @@ class IGT(ds.ControlDrivingSystem):
             else:
                 self.connected = False
                 logger.error("Error: connection failed.")
-                sys.exit()
+                
+                if attempt < 5:
+                    logger.warning('Try to disconnect and reconnect...')
+                    self.disconnect()
+                    self.connect(connect_info, log_dir, log_name, attempt=attempt+1)
+                else:
+                    logger.error('Maximum amount for reconnecting is reached. Exit.')
+                    sys.exit()
+
         except Exception as e:
             logger.error(f"Error after connection check: {e}")
             sys.exit()
@@ -238,7 +253,7 @@ class IGT(ds.ControlDrivingSystem):
 
             # define pulse
             if seq2 is None:
-                pulse = self._define_pulse(seq1, seq1.transducer.elements)
+                pulse = self._define_pulse(seq1)
             else:
                 logger.info('Two sequences are sent indicating two transducers are connected.')
                 logger.info('Timing parameters will be based on first sequence.')
@@ -296,16 +311,20 @@ class IGT(ds.ControlDrivingSystem):
         # duration in ms, delay in ms
         pulse.setDuration(seq1.pulse_dur, round(seq1.pulse_rep_int - seq1.pulse_dur, 1))
 
+        # frequencies have to be set first before phases can be computed
         # determine  per sequence
+        phases = []
         freqs = []
         ampls = []
-        phases = []
         for seq in [seq1, seq2]:
-            oper_freq_hz = int(seq.oper_freq * 1e3)
-            freqs = freqs + [oper_freq_hz] * seq.transducer.elements
-
+            
             ampls = ampls + [seq.ampl] * seq.transducer.elements
-
+            
+            oper_freq_hz = int(seq.oper_freq * 1e3)
+            tran_freq = [oper_freq_hz] * seq.transducer.elements
+            freqs = freqs + tran_freq
+            
+            pulse.setFrequencies(tran_freq)
             if seq.dephasing_degree is not None and (len(seq.dephasing_degree) ==
                                                      seq.transducer.elements):
                 logger.info(f'Phases are overridden by phases set at dephasing_degree :{seq.dephasing_degree}')
@@ -316,15 +335,15 @@ class IGT(ds.ControlDrivingSystem):
                                                    seq.dephasing_degree)
                 phases = phases + computed_phases
 
+        # set phase offset for all channels (angle in [0,360] degrees)
+        pulse.setPhases(phases)
+
         # set frequency for all channels, in Hz
         pulse.setFrequencies(freqs)
 
         # set amplitude for all channels in percent (of max amplitude)
         pulse.setAmplitudes(ampls)
-
-        # set phase offset for all channels (angle in [0,360] degrees)
-        pulse.setPhases(phases)
-
+        
         return pulse
 
     def wait_for_trigger(self, sequence, debug_info=False):
