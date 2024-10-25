@@ -224,16 +224,16 @@ class Sequence():
                          f"{self.P2A_a}*V + {self.P2A_b} \n ")
 
                 info += ("Normalized pressure [-] vs. focal depth [mm] equation between a focus of "
-                         f"{self.F2EFQ1_low_lim} and {self.F2EFQ1_up_lim} [mm] (EQ1 = a0 + " +
-                         f"a1*f + a2*f^2 + a3*f^3 + a4*f^4 + a5*f^5): Pnorm = {self.F2EFQ1_a0} + " +
-                         f"{self.F2EFQ1_a1}*f + {self.F2EFQ1_a2}*f^2 + {self.F2EFQ1_a3}*f^3 + " +
-                         f"{self.F2EFQ1_a4}*f^4 + {self.F2EFQ1_a5}*f^5 \n ")
+                         f"{self.F2EQF1_low_lim} and {self.F2EQF1_up_lim} [mm] (EQ1 = a0 + " +
+                         f"a1*f + a2*f^2 + a3*f^3 + a4*f^4 + a5*f^5): Pnorm = {self.F2EQF1_a0} + " +
+                         f"{self.F2EQF1_a1}*f + {self.F2EQF1_a2}*f^2 + {self.F2EQF1_a3}*f^3 + " +
+                         f"{self.F2EQF1_a4}*f^4 + {self.F2EQF1_a5}*f^5 \n ")
 
                 info += ("Normalized pressure [-] vs. focal depth [mm] equation between a focus of "
-                         f"{self.F2EFQ2_low_lim} and {self.F2EFQ2_up_lim} [mm] (EQ2 = a0 + " +
-                         f"a1*f + a2*f^2 + a3*f^3 + a4*f^4 + a5*f^5): Pnorm = {self.F2EFQ2_a0} + " +
-                         f"{self.F2EFQ2_a1}*f + {self.F2EFQ2_a2}*f^2 + {self.F2EFQ2_a3}*f^3 + " +
-                         f"{self.F2EFQ2_a4}*f^4 + {self.F2EFQ2_a5}*f^5 \n ")
+                         f"{self.F2EQF2_low_lim} and {self.F2EQF2_up_lim} [mm] (EQ2 = a0 + " +
+                         f"a1*f + a2*f^2 + a3*f^3 + a4*f^4 + a5*f^5): Pnorm = {self.F2EQF2_a0} + " +
+                         f"{self.F2EQF2_a1}*f + {self.F2EQF2_a2}*f^2 + {self.F2EQF2_a3}*f^3 + " +
+                         f"{self.F2EQF2_a4}*f^4 + {self.F2EQF2_a5}*f^5 \n ")
 
                 info += (f"Normalized pressure [-] based on chosen focal depth of {self._focus_wrt_exit_plane}" +
                          f" [mm]: {self._eq_factor} \n ")
@@ -701,6 +701,11 @@ class Sequence():
             # Update voltage accordingly
             self._calc_volt()
 
+            logger.info(f'New focus value of {self._focus:.2f} [mm] results in an equalization ' +
+                        f'factor of {self._eq_factor:.2f} recalcultating the maximum pressure in ' +
+                        f'free water as {self._press:.2f} [MPa], the voltage as {self._volt:.2f} ' +
+                        f'[V], and the amplitude as {self._ampl:.1f} [%].')
+
     @property
     def dephasing_degree(self):
         """
@@ -748,6 +753,28 @@ class Sequence():
         """
 
         return float(self._conv_param['V2A_b'])
+
+    @property
+    def P2A_a(self):
+        """
+        Getter method for the 1st order coefficient of oressure [Pa] vs. amplitude [%] equation.
+
+        Returns:
+            float: The 1st order coefficient of oressure [Pa] vs. amplitude [%] equation.
+        """
+
+        return float(self._conv_param['P2A_a'])
+
+    @property
+    def P2A_b(self):
+        """
+        Getter method for the 0-order coefficient of oressure [Pa] vs. amplitude [%] equation.
+
+        Returns:
+            float: The 0-order coefficient of oressure [Pa] vs. amplitude [%] equation.
+        """
+
+        return float(self._conv_param['P2A_b'])
 
     @property
     def F2EQF1_low_lim(self):
@@ -1167,17 +1194,17 @@ class Sequence():
         """
 
         if self._focus_wrt_exit_plane >= self.F2EQF1_low_lim and self._focus_wrt_exit_plane <= self.F2EQF1_up_lim:
-            self._eq_factor = (self.F2EFQ1_a0 + self.F2EFQ1_a1*self._focus_wrt_exit_plane +
-                               self.F2EFQ1_a2*math.pow(self._focus_wrt_exit_plane, 2) +
-                               self.F2EFQ1_a3*math.pow(self._focus_wrt_exit_plane, 3) +
-                               self.F2EFQ1_a4*math.pow(self._focus_wrt_exit_plane, 4) +
-                               self.F2EFQ1_a5*math.pow(self._focus_wrt_exit_plane, 5))
+            self._eq_factor = (self.F2EQF1_a0 + self.F2EQF1_a1*self._focus_wrt_exit_plane +
+                               self.F2EQF1_a2*math.pow(self._focus_wrt_exit_plane, 2) +
+                               self.F2EQF1_a3*math.pow(self._focus_wrt_exit_plane, 3) +
+                               self.F2EQF1_a4*math.pow(self._focus_wrt_exit_plane, 4) +
+                               self.F2EQF1_a5*math.pow(self._focus_wrt_exit_plane, 5))
         elif self._focus_wrt_exit_plane > self.F2EQF2_low_lim and self._focus_wrt_exit_plane <= self.F2EQF2_up_lim:
-            self._eq_factor = (self.F2EFQ2_a0 + self.F2EFQ2_a1*self._focus_wrt_exit_plane +
-                               self.F2EFQ2_a2*math.pow(self._focus_wrt_exit_plane, 2) +
-                               self.F2EFQ2_a3*math.pow(self._focus_wrt_exit_plane, 3) +
-                               self.F2EFQ2_a4*math.pow(self._focus_wrt_exit_plane, 4) +
-                               self.F2EFQ2_a5*math.pow(self._focus_wrt_exit_plane, 5))
+            self._eq_factor = (self.F2EQF2_a0 + self.F2EQF2_a1*self._focus_wrt_exit_plane +
+                               self.F2EQF2_a2*math.pow(self._focus_wrt_exit_plane, 2) +
+                               self.F2EQF2_a3*math.pow(self._focus_wrt_exit_plane, 3) +
+                               self.F2EQF2_a4*math.pow(self._focus_wrt_exit_plane, 4) +
+                               self.F2EQF2_a5*math.pow(self._focus_wrt_exit_plane, 5))
         else:
             logger.error(f'Focus of {self._focus_wrt_exit_plane} mm is not within the limits of {self.F2EQF1_low_lim} mm and {self.F2EQF2_up_lim} mm.')
             sys.exit()
@@ -1201,7 +1228,19 @@ class Sequence():
         """
 
         press_pa = self._press * 1e6  # convert to Pa
-        self._ampl = self.P2A_a * (press_pa / self._eq_factor) + self.P2A_b
+        self._ampl = self.P2A_a * (press_pa * self._eq_factor) + self.P2A_b
+        if self._ampl > 100:
+            logger.warning(('Calculated amplitude exceeds 100%, so cut off the amplitude at 100% ' +
+                            'and recalculate the pressure.'))
+            self._ampl = 100
+            self._calc_press()
+            self._calc_volt()
+        elif self._ampl < 0:
+            logger.warning(('Calculated amplitude belolw 0%, so cut off the amplitude at 0% and ' +
+                            'recalculate the pressure.'))
+            self._ampl = 0
+            self._calc_press()
+            self._calc_volt()
 
     def _calc_ampl_using_volt(self):
         """
@@ -1217,5 +1256,5 @@ class Sequence():
         updated.
         """
 
-        press_pa = ((self._ampl - self.P2A_b) * self._eq_factor) / self.P2A_a
+        press_pa = (self._ampl - self.P2A_b) / (self.P2A_a * self._eq_factor)
         self._press = press_pa * 1e-6  # convert to MPa

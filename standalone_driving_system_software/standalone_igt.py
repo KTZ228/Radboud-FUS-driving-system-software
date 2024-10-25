@@ -59,6 +59,8 @@ use_two_transducers = True  # is true if you are using two transducers simulaten
 seq.transducer = 'IS_PCD15287_01001'
 
 # set general parameters
+seq.press = 0.65  # [MPa], maximum pressure in free water. NOTE: DIFFERENT THAN SC
+
 seq.oper_freq = 300  # [kHz], operating frequency
 seq.focus = 40  # [mm], focal depth
 
@@ -69,12 +71,6 @@ seq.focus = 40  # [mm], focal depth
 # based on the set focus.
 seq.dephasing_degree = None  # [degrees]: None, [120] or [0, 135, 239, 90]
 
-# THE FEATURE IS NOT ENABLED YET! Use amplitude only for now
-# either set maximum pressure in free water [MPa], voltage [V] or amplitude [%]
-# seq.press = 1  # [MPa], maximum pressure in free water
-# seq.volt = 0  # [V], voltage per channel
-seq.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
-
 if use_two_transducers:
     seq2 = sequence.Sequence()
 
@@ -83,6 +79,13 @@ if use_two_transducers:
     seq2.transducer = 'IS_PCD15287_01002'
 
     # set general parameters
+
+    # THE FEATURE IS NOT ENABLED YET! Use amplitude only for now
+    # either set maximum pressure in free water [MPa], voltage [V] or amplitude [%]
+    # seq.press = 1  # [MPa], maximum pressure in free water
+    # seq.volt = 0  # [V], voltage per channel
+    seq2.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
+
     seq2.oper_freq = 300  # [kHz], operating frequency
     seq2.focus = 40  # [mm], focal depth
 
@@ -92,12 +95,6 @@ if use_two_transducers:
     # When the amount of values match the amount of elements, it will override the calculated phases
     # based on the set focus.
     seq2.dephasing_degree = None  # [degrees]: None, [120] or [0, 135, 239, 90]
-
-    # THE FEATURE IS NOT ENABLED YET! Use amplitude only for now
-    # either set maximum pressure in free water [MPa], voltage [V] or amplitude [%]
-    # seq.press = 1  # [MPa], maximum pressure in free water
-    # seq.volt = 0  # [V], voltage per channel
-    seq2.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
 
 # # timing parameters # #
 # you can use the TUS Calculator to visualize the timing parameters:
