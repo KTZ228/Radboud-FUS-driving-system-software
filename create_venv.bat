@@ -54,11 +54,11 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: Ensure that virtualenv is installed (with --user flag for non-admin rights)
+:: Ensure that virtualenv is installed
 "%PYTHON_PATH%" -m pip show virtualenv >nul 2>&1
 if errorlevel 1 (
     echo Installing virtualenv package...
-    "%PYTHON_PATH%" -m pip install --user virtualenv
+    "%PYTHON_PATH%" -m pip install virtualenv
 ) else (
     echo virtualenv is already installed.
 )
@@ -76,9 +76,9 @@ if exist "%VENV_PATH%\Scripts\activate" (
 :: Activate the virtual environment
 call "%VENV_PATH%\Scripts\activate"
 
-:: Install project-specific dependencies (with --user flag for non-admin rights)
+:: Install project-specific dependencies
 echo Installing requirements from requirements.txt...
-pip install --user -r requirements.txt
+pip install -r requirements.txt
 
 :: Upgrade pip in virtual environment
 python.exe -m pip install --upgrade pip
