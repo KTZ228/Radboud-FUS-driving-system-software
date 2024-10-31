@@ -160,7 +160,7 @@ class IGT(ds.ControlDrivingSystem):
             logger.info('After waitConnection()....')
         except Exception as e:
             logger.warning(f"Error during connection or listener registration: {e}")
-            
+
             if attempt < 5:
                 logger.warning('Try to disconnect and reconnect...')
                 self.disconnect()
@@ -180,7 +180,7 @@ class IGT(ds.ControlDrivingSystem):
             else:
                 self.connected = False
                 logger.error("Error: connection failed.")
-                
+
                 if attempt < 5:
                     logger.warning('Try to disconnect and reconnect...')
                     self.disconnect()
@@ -317,17 +317,17 @@ class IGT(ds.ControlDrivingSystem):
         freqs = []
         ampls = []
         for seq in [seq1, seq2]:
-            
+
             ampls = ampls + [seq.ampl] * seq.transducer.elements
-            
+
             oper_freq_hz = int(seq.oper_freq * 1e3)
             tran_freq = [oper_freq_hz] * seq.transducer.elements
             freqs = freqs + tran_freq
-            
+
             pulse.setFrequencies(tran_freq)
             if seq.dephasing_degree is not None and (len(seq.dephasing_degree) ==
                                                      seq.transducer.elements):
-                logger.info(f'Phases are overridden by phases set at dephasing_degree :{seq.dephasing_degree}')
+                logger.info(f'Phases are overridden by phases set at dephasing_degree: {seq.dephasing_degree}')
                 phases = phases + seq.dephasing_degree
             else:
                 computed_phases = self._set_phases(pulse, seq.focus, seq.transducer.steer_info,
@@ -343,7 +343,7 @@ class IGT(ds.ControlDrivingSystem):
 
         # set amplitude for all channels in percent (of max amplitude)
         pulse.setAmplitudes(ampls)
-        
+
         return pulse
 
     def wait_for_trigger(self, sequence, debug_info=False):
@@ -523,10 +523,11 @@ class IGT(ds.ControlDrivingSystem):
 
         # set same phase offset for all channels (angle in [0,360] degrees)
         if sequence.dephasing_degree is not None and len(sequence.dephasing_degree) == sequence.transducer.elements:
-                logger.info(f'Phases are overridden by phases set at dephasing_degree :{sequence.dephasing_degree}')
-                pulse.setPhases(sequence.dephasing_degree)
+            logger.info(f'Phases are overridden by phases set at dephasing_degree :{sequence.dephasing_degree}')
+            pulse.setPhases(sequence.dephasing_degree)
         else:
-            phases = self._set_phases(pulse, sequence.focus, sequence.transducer.steer_info,
+            phases = self._set_phases(pulse, sequence.focus_wrt_mid_bowl,
+                                      sequence.transducer.steer_info,
                                       sequence.transducer.natural_foc, sequence.dephasing_degree)
             pulse.setPhases(phases)
 
@@ -558,7 +559,7 @@ class IGT(ds.ControlDrivingSystem):
 
         Parameters:
             pulse (unifus.Pulse): The defined pulse.
-            focus (float): The focus value [mm].
+            focus (float): The focus value wrt the middle of the transducer bowl [mm].
             steer_info (str): Path to the steer information.
             natural_foc (float): The natural focus value [mm] used to calculate target focus.
             dephasing_degree (list(float)): The degree used to dephase n elements in one cycle.
@@ -583,7 +584,8 @@ class IGT(ds.ControlDrivingSystem):
             aim_wrt_natural_focus = natural_foc - focus
 
             # Aim n mm away from the natural focal spot, on main axis (Z)
-            phases = trans.computePhases(pulse, (0, 0, aim_wrt_natural_focus), focus, dephasing_degree)
+            phases = trans.computePhases(pulse, (0, 0, aim_wrt_natural_focus), focus,
+                                         dephasing_degree)
 
         else:
             # Import excel file containing phases per focal depth

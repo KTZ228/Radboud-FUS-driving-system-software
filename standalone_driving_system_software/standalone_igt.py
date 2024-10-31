@@ -62,7 +62,7 @@ seq.transducer = 'IS_PCD15287_01001'
 seq.press = 0.25  # [MPa], maximum pressure in free water. NOTE: DIFFERENT THAN SC
 
 seq.oper_freq = 300  # [kHz], operating frequency
-seq.focus = 40  # [mm], focal depth
+seq.focus_wrt_exit_plane = 40  # [mm], focal depth w.r.t. the exit plane
 
 # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
 # One value (>0) is the degree of dephasing, for example [90] with 4 elements: 1 elem: 0 dephasing,

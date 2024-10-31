@@ -99,7 +99,7 @@ class SonicConcepts(ds.ControlDrivingSystem):
             self._reset_parameters()
 
             self._set_operating_freq(sequence.oper_freq)
-            self._set_focus(sequence.focus)
+            self._set_focus(sequence.focus_wrt_mid_bowl)
             self._set_global_power(sequence.global_power)
             self._set_burst_and_period(sequence.pulse_dur, sequence.pulse_rep_int)
             self._set_timer(sequence.pulse_train_dur)
