@@ -121,8 +121,8 @@ create_venv.bat "C:\Path\To\Python310\python.exe" FUS_DS_PACKAGE "C:/Users/Me/En
 ```
 The batch file will create a virtual environment and install the required Python packages.
 
-*DCCN specific configuration*
-
+**DCCN specific configuration**
+	
 To use the DCCN-specific default values, you can provide a fourth input parameter to activate these settings.
 
 Example:
@@ -193,7 +193,7 @@ How to use the script:
 		- VENV_PATH: Specify the path to the virtual environment (e.g., C:/Users/Me/Envs/MyEnv). If not provided, it defaults to C:/Users/{USERPROFILE}/Envs/FUS_DS_PACKAGE.
 		- IDE: Specify the python interpreter. IF not provided, it defaults to spyder.
 		
-		*DCCN specific configuration*
+		**DCCN specific configuration**
 
 		To use the DCCN-specific default values, you can soly provide the first input parameter to activate these settings.
 
