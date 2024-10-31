@@ -5,22 +5,39 @@
 :: Set the Python executable path (ensure Python 3.10 is correctly installed and specify the correct path)
 set "DEFAULT_PYTHON_PATH=C:\Program Files\Python310\python.exe"
 
-:: Set a default virtual environment name
-set "DEFAULT_VENV_NAME=FUS_DS_PACKAGE"
+:: Check if mode is provided as the fourth parameter; otherwise, set to "default"
+if "%~4"=="" (
+    set "MODE=default"
+) else (
+    set "MODE=%~4"
+)
 
-:: Set a default virtual environment directory
-set "DEFAULT_VENV_DIR=%USERPROFILE%\Envs"
+:: If mode is DCCN, use DCCN-specific default values.
+if "%MODE%" == "DCCN" (
+    :: Set a default virtual environment name
+    set "DEFAULT_VENV_NAME=venv310"
 
-:: Collect input parameters
+    :: Set a default virtual environment directory
+    set "DEFAULT_VENV_DIR=D:\Users\%USERNAME%"
+) else (
+    :: Set a default virtual environment name
+    set "DEFAULT_VENV_NAME=FUS_DS_PACKAGE"
+
+    :: Set a default virtual environment directory
+    set "DEFAULT_VENV_DIR=%USERPROFILE%\Envs"
+)
+
+:: Collect input parameters with fallbacks to defaults
 set "PYTHON_PATH=%~1"
-set "VENV_NAME=%~2"
-set "VENV_DIR=%~3"
-
 if "%PYTHON_PATH%"=="" set "PYTHON_PATH=%DEFAULT_PYTHON_PATH%"
+
+set "VENV_NAME=%~2"
 if "%VENV_NAME%"=="" set "VENV_NAME=%DEFAULT_VENV_NAME%"
+
+set "VENV_DIR=%~3"
 if "%VENV_DIR%"=="" set "VENV_DIR=%DEFAULT_VENV_DIR%"
 
-:: Check if the Envs directory exists, if not, create it
+:: Check if the Envs directory exists; if not, create it
 if not exist "%VENV_DIR%" (
     mkdir "%VENV_DIR%"
     echo Created directory "%VENV_DIR%"
@@ -38,11 +55,10 @@ if errorlevel 1 (
 )
 
 :: Ensure that virtualenv is installed (with --user flag for non-admin rights)
-:: Check if virtualenv is installed
 "%PYTHON_PATH%" -m pip show virtualenv >nul 2>&1
 if errorlevel 1 (
     echo Installing virtualenv package...
-    "%PYTHON_PATH%" -m pip install virtualenv
+    "%PYTHON_PATH%" -m pip install --user virtualenv
 ) else (
     echo virtualenv is already installed.
 )
@@ -58,14 +74,14 @@ if exist "%VENV_PATH%\Scripts\activate" (
 )
 
 :: Activate the virtual environment
-call "%VENV_PATH%"\Scripts\activate
+call "%VENV_PATH%\Scripts\activate"
 
 :: Install project-specific dependencies (with --user flag for non-admin rights)
-echo Install requirements.txt...
-pip install -r requirements.txt
+echo Installing requirements from requirements.txt...
+pip install --user -r requirements.txt
 
-:: Upgrade pip (optional but recommended)
-"%PYTHON_PATH%" -m pip install --upgrade pip
+:: Upgrade pip in virtual environment
+python.exe -m pip install --upgrade pip
 
-echo Setup complete. To activate the virtual environment, run 'call %VENV_PATH%\Scripts\activate'. 
-echo The virtual environment is located at "%VENV_PATH%".
+echo Setup complete. To activate the virtual environment, run: call "%VENV_PATH%\Scripts\activate"
+echo The virtual environment is located at: "%VENV_PATH%"

@@ -104,7 +104,7 @@ Ensure you have Python 3.10 installed and accessible from your command line. If 
 **Note**: The script assumes that Python 3.10 is installed. If you have a different version, make sure to adjust the script accordingly or install Python 3.10.
 
 *Step 3: Create and setup a virtual environment* \
-Open your command prompt and run the following batch file to set up the virtual environment and install the necessary dependencies. You can use input parameters to customize the environment name or directory, or Python interpreter location. You must either rely on all default or provide all input parameters. 
+Open your command prompt and run the following batch file to set up the virtual environment and install the necessary dependencies. You can use input parameters to customize the environment name or directory, or Python interpreter location. You can use the default values or specify only the parameters you need by leaving others blank with "".
 
 ```
 cd your_directory_with_cloned_repository
@@ -120,6 +120,15 @@ Example:
 create_venv.bat "C:\Path\To\Python310\python.exe" FUS_DS_PACKAGE "C:/Users/Me/Envs"
 ```
 The batch file will create a virtual environment and install the required Python packages.
+
+*DCCN specific configuration*
+
+To use the DCCN-specific default values, you can provide a fourth input parameter to activate these settings.
+
+Example:
+```
+create_venv.bat "" "" "" "DCCN"
+```
 
 *Step 4: Verify the successful setup of the virtual environment* \
 After running the batch file, ensure that the virtual environment and dependencies are installed. You can verify this by:
@@ -183,6 +192,15 @@ How to use the script:
 		```
 		- VENV_PATH: Specify the path to the virtual environment (e.g., C:/Users/Me/Envs/MyEnv). If not provided, it defaults to C:/Users/{USERPROFILE}/Envs/FUS_DS_PACKAGE.
 		- IDE: Specify the python interpreter. IF not provided, it defaults to spyder.
+		
+		*DCCN specific configuration*
+
+		To use the DCCN-specific default values, you can soly provide the first input parameter to activate these settings.
+
+		Example:
+		```
+		start_venv_and_ide.bat "" "" "DCCN"
+		```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
