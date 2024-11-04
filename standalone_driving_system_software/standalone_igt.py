@@ -59,7 +59,6 @@ use_two_transducers = True  # is true if you are using two transducers simulaten
 seq.transducer = 'IS_PCD15287_01001'
 
 # set general parameters
-seq.press = 0.25  # [MPa], maximum pressure in free water. NOTE: DIFFERENT THAN SC
 seq.oper_freq = 300  # [kHz], operating frequency
 seq.focus = 40  # [mm], focal depth
 
@@ -78,7 +77,7 @@ seq.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
 
 if use_two_transducers:
     seq2 = sequence.Sequence()
-    
+
     seq2.driving_sys = seq.driving_sys.serial
 
     # to check available transducers: print(transducer.get_tran_serials())
@@ -86,8 +85,6 @@ if use_two_transducers:
     seq2.transducer = 'IS_PCD15287_01002'
 
     # set general parameters
-    seq2.press = 0.5  # [MPa], maximum pressure in free water. NOTE: DIFFERENT THAN SC
-
     seq2.oper_freq = 300  # [kHz], operating frequency
     seq2.focus = 80  # [mm], focal depth
 
@@ -133,7 +130,7 @@ seq.wait_for_trigger = True
 seq.trigger_option = 'TriggerSequence'
 
 if seq.wait_for_trigger and seq.trigger_option == config['General']['Trigger option.seq']:
-    seq.n_triggers = 4 # number of timings above defined sequence will be triggered
+    seq.n_triggers = 4  # number of timings above defined sequence will be triggered
 
 else:
     seq.pulse_train_rep_int = 200  # [ms], pulse train repetition interval, NOTE: DIFFERENT THAN SC
