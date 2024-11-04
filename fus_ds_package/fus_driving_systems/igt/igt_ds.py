@@ -346,14 +346,14 @@ class IGT(ds.ControlDrivingSystem):
 
         return pulse
 
-    def wait_for_trigger(self, sequence, debug_info=False):
+    def wait_for_trigger(self, seq1, seq2=None, debug_info=False):
         """
         Activates the listener on the IGT ultrasound driving system to wait for the trigger to
         execte the previously sent sequence.
         """
 
         if self.is_connected():
-            if self.is_sequence_sent(sequence.seq_num):
+            if self.is_sequence_sent(seq1.seq_num):
                 try:
                     # Use unifus.ExecFlag.NONE if nothing special, or simply don't pass the
                     # exec_flags argument. Use '|' to combine multiple flags: flag1 | flag2 | flag3
@@ -364,34 +364,34 @@ class IGT(ds.ControlDrivingSystem):
 
                     if debug_info:
                         ramp_transient_t = 0
-                        if sequence.pulse_ramp_dur > 0 and (sequence.pulse_ramp_shape !=
-                                                            config['General']['Ramp shape.rect']):
+                        if seq1.pulse_ramp_dur > 0 and (seq1.pulse_ramp_shape !=
+                                                        config['General']['Ramp shape.rect']):
                             ramp_transient_t = 0.070  # [ms]
 
-                        if sequence.pulse_dur > 4.570 + ramp_transient_t:  # [ms]
+                        if seq1.pulse_dur > 4.570 + ramp_transient_t:  # [ms]
                             exec_flags |= unifus.ExecFlag.MeasureChannels
 
-                        elif sequence.pulse_dur >= 0.035 + ramp_transient_t:  # [ms]
+                        elif seq1.pulse_dur >= 0.035 + ramp_transient_t:  # [ms]
                             exec_flags |= unifus.ExecFlag.MeasureBoards
 
-                        elif sequence.pulse_dur >= 0.001 + ramp_transient_t:  # [ms]:
+                        elif seq1.pulse_dur >= 0.001 + ramp_transient_t:  # [ms]:
                             exec_flags |= unifus.ExecFlag.MeasureTimings  # or NONE
 
                     # Determining trigger flag
-                    if sequence.trigger_option == config['General']['Trigger option.seq']:
+                    if seq1.trigger_option == config['General']['Trigger option.seq']:
                         exec_flags |= unifus.ExecFlag.TriggerOneSequence
-                        self.n_pulse_train_rep = sequence.n_triggers
+                        self.n_pulse_train_rep = seq1.n_triggers
                         self.pulse_train_delay = 0  # trigger will determine delay
 
-                    elif sequence.trigger_option == config['General']['Trigger option.ptr']:
+                    elif seq1.trigger_option == config['General']['Trigger option.ptr']:
                         exec_flags |= unifus.ExecFlag.TriggerAllSequences
 
                     else:
-                        logger.error(f'Trigger option {sequence.trigger_option} is not identical ' +
-                                     f'to implemented trigger options: {sequence.get_trigger_options()}.')
+                        logger.error(f'Trigger option {seq1.trigger_option} is not identical to ' +
+                                     f'implemented trigger options: {seq1.get_trigger_options()}.')
                         sys.exit()
 
-                    self.gen.prepareSequence(sequence.seq_num, self.n_pulse_train_rep,
+                    self.gen.prepareSequence(seq1.seq_num, self.n_pulse_train_rep,
                                              self.pulse_train_delay, exec_flags)
 
                     self.gen.startSequence()
@@ -405,24 +405,24 @@ class IGT(ds.ControlDrivingSystem):
                                'the driving system can wait for a trigger.')
                 logger.warning('Sending sequence...')
 
-                self.send_sequence(sequence)
-                self.wait_for_trigger(sequence)
+                self.send_sequence(seq1, seq2)
+                self.wait_for_trigger(seq1, seq2)
         else:
             logger.warning("No connection with driving system.")
             logger.warning("Reconnecting with driving system...")
 
             # if no connection can be made, program stops preventing infinite loop
-            self.connect(sequence.driving_sys.connect_info)
-            self.send_sequence(sequence)
-            self.wait_for_trigger(sequence)
+            self.connect(seq1.driving_sys.connect_info)
+            self.send_sequence(seq1, seq2)
+            self.wait_for_trigger(seq1, seq2)
 
-    def execute_sequence(self, sequence, debug_info=False):
+    def execute_sequence(self, seq1, seq2=None, debug_info=False):
         """
         Executes the previously sent sequence on the IGT ultrasound driving system.
         """
 
         if self.is_connected():
-            if self.is_sequence_sent(sequence.seq_num):
+            if self.is_sequence_sent(seq1.seq_num):
                 try:
                     # Use unifus.ExecFlag.NONE if nothing special, or simply don't pass the
                     # exec_flags argument. Use '|' to combine multiple flags: flag1 | flag2 | flag3
@@ -433,18 +433,18 @@ class IGT(ds.ControlDrivingSystem):
 
                     if debug_info:
                         ramp_transient_t = 0
-                        if sequence.pulse_ramp_dur > 0 and sequence.pulse_ramp_shape != config['General']['Ramp shape.rect']:
+                        if seq1.pulse_ramp_dur > 0 and seq1.pulse_ramp_shape != config['General']['Ramp shape.rect']:
                             ramp_transient_t = 0.070  # [ms]
 
-                        if sequence.pulse_dur > 4.570 + ramp_transient_t:  # [ms]
+                        if seq1.pulse_dur > 4.570 + ramp_transient_t:  # [ms]
                             exec_flags |= unifus.ExecFlag.MeasureChannels
 
-                        elif sequence.pulse_dur >= 0.035 + ramp_transient_t:  # [ms]
+                        elif seq1.pulse_dur >= 0.035 + ramp_transient_t:  # [ms]
                             exec_flags |= unifus.ExecFlag.MeasureBoards
-                        elif sequence.pulse_dur >= 0.001 + ramp_transient_t:  # [ms]:
+                        elif seq1.pulse_dur >= 0.001 + ramp_transient_t:  # [ms]:
                             exec_flags |= unifus.ExecFlag.MeasureTimings  # or NONE
 
-                    self.gen.prepareSequence(sequence.seq_num, self.n_pulse_train_rep,
+                    self.gen.prepareSequence(seq1.seq_num, self.n_pulse_train_rep,
                                              self.pulse_train_delay, exec_flags)
 
                     self.gen.startSequence()
@@ -458,17 +458,17 @@ class IGT(ds.ControlDrivingSystem):
                                'the driving system can execute a sequence.')
                 logger.warning('Sending sequence...')
 
-                self.send_sequence(sequence)
-                self.execute_sequence(sequence)
+                self.send_sequence(seq1, seq2)
+                self.execute_sequence(seq1, seq2)
 
         else:
             logger.warning("No connection with driving system.")
             logger.warning("Reconnecting with driving system...")
 
             # if no connection can be made, program stops preventing infinite loop
-            self.connect(sequence.driving_sys.connect_info)
-            self.send_sequence(sequence)
-            self.execute_sequence(sequence)
+            self.connect(seq1.driving_sys.connect_info)
+            self.send_sequence(seq1, seq2)
+            self.execute_sequence(seq1, seq2)
 
     def disconnect(self):
         """
