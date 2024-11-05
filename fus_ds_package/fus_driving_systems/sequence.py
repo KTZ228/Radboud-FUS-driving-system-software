@@ -82,6 +82,12 @@ class Sequence():
             P2A_a (float): 1st order coefficient of pressure [Pa] vs. amplitude [%] equation.
             P2A_b (float): 0-order coefficient of pressure [Pa] vs. amplitude [%] equation.
 
+            FWHM center wrt exit plane [mm] vs. set focus [%] equation (SF = a*FWHMC + b)
+            DF2SF_a (float): 1st order coefficient of FWHM center wrt exit plane [mm] vs. set focus
+                             [mm] equation.
+            DF2SF_b (float): 0-order coefficient of FWHM center wrt exit plane [mm] vs. set focus
+                             [mm] equation.
+
             F2EQF1_low_lim (float): The lower limit of the focus wrt exit plane the equation
                                     accounts for.
             F2EQF1_up_lim (float): The upper limit of the focus wrt exit plane the equation accounts
@@ -93,7 +99,10 @@ class Sequence():
                                                                               F2EQF1_a2*f^2 +
                                                                               F2EQF1_a3*f^3 +
                                                                               F2EQF1_a4*f^4 +
-                                                                              F2EQF1_a5*f^5).
+                                                                              F2EQF1_a5*f^5 +
+                                                                              F2EQF1_a6*f^6 +
+                                                                              F2EQF1_a7*f^7
+                                                                              ).
             F2EQF1_a0 (float): 0-order coefficient of normalized pressure vs. focal depth wrt exit
                                plane [mm] equation.
             F2EQF1_a1 (float): 1st order coefficient of normalized pressure vs. focal depth wrt exit
@@ -105,6 +114,10 @@ class Sequence():
             F2EQF1_a4 (float): 4th order coefficient of normalized pressure vs. focal depth wrt exit
                                plane [mm] equation.
             F2EQF1_a5 (float): 5th order coefficient of normalized pressure vs. focal depth wrt exit
+                               plane [mm] equation.
+            F2EQF1_a6 (float): 6th order coefficient of normalized pressure vs. focal depth wrt exit
+                               plane [mm] equation.
+            F2EQF1_a7 (float): 7th order coefficient of normalized pressure vs. focal depth wrt exit
                                plane [mm] equation.
 
             F2EQF2_low_lim (float): The lower limit of the focus wrt exit plane the equation
@@ -113,23 +126,30 @@ class Sequence():
                                    for.
 
             for range F2EQF2_low_lim < focus wrt exit plane <= F2EQF2_up_lim
-            normalized pressure vs. focal depth wrt exit plane [mm] equation (EQF2 = F2EQF1_a0 +
-                                                                              F2EQF1_a1*f +
-                                                                              F2EQF1_a2*f^2 +
-                                                                              F2EQF1_a3*f^3 +
-                                                                              F2EQF1_a4*f^4 +
-                                                                              F2EQF1_a5*f^5).
-            F2EQF1_a0 (float): 0-order coefficient of normalized pressure vs. focal depth wrt exit
+            normalized pressure vs. focal depth wrt exit plane [mm] equation (EQF2 = F2EQF2_a0 +
+                                                                              F2EQF2_a1*f +
+                                                                              F2EQF2_a2*f^2 +
+                                                                              F2EQF2_a3*f^3 +
+                                                                              F2EQF2_a4*f^4 +
+                                                                              F2EQF2_a5*f^5 +
+                                                                              F2EQF2_a6*f^6 +
+                                                                              F2EQF2_a7*f^7 +
+                                                                              ).
+            F2EQF2_a0 (float): 0-order coefficient of normalized pressure vs. focal depth wrt exit
                                plane [mm] equation.
-            F2EQF1_a1 (float): 1st order coefficient of normalized pressure vs. focal depth wrt exit
+            F2EQF2_a1 (float): 1st order coefficient of normalized pressure vs. focal depth wrt exit
                                plane [mm] equation.
-            F2EQF1_a2 (float): 2nd order coefficient of normalized pressure vs. focal depth wrt exit
+            F2EQF2_a2 (float): 2nd order coefficient of normalized pressure vs. focal depth wrt exit
                                plane [mm] equation.
-            F2EQF1_a3 (float): 3rd order coefficient of normalized pressure vs. focal depth wrt exit
+            F2EQF2_a3 (float): 3rd order coefficient of normalized pressure vs. focal depth wrt exit
                                plane [mm] equation.
-            F2EQF1_a4 (float): 4th order coefficient of normalized pressure vs. focal depth wrt exit
+            F2EQF2_a4 (float): 4th order coefficient of normalized pressure vs. focal depth wrt exit
                                plane [mm] equation.
-            F2EQF1_a5 (float): 5th order coefficient of normalized pressure vs. focal depth wrt exit
+            F2EQF2_a5 (float): 5th order coefficient of normalized pressure vs. focal depth wrt exit
+                               plane [mm] equation.
+            F2EQF2_a6 (float): 6th order coefficient of normalized pressure vs. focal depth wrt exit
+                               plane [mm] equation.
+            F2EQF2_a7 (float): 7th order coefficient of normalized pressure vs. focal depth wrt exit
                                plane [mm] equation.
 
         _eq_factor (float): [IGT] normalized pressure based on chosen focal depth wrt exit plane [-]
@@ -187,6 +207,40 @@ class Sequence():
         self._focus_wrt_exit_plane = self._focus_wrt_mid_bowl - self._transducer.exit_plane_dist
 
         # If applicable, retrieve conversion parameters
+        self._conv_param = {
+            "V2A_a": 0,
+            "V2A_b": 0,
+
+            "P2A_a": 0,
+            "P2A_b": 0,
+
+            "DF2SF_a": 0,
+            "DF2SF_b": 0,
+
+            "F2EQF1_low_lim": 0,
+            "F2EQF1_up_lim": 0,
+            "F2EQF1_a0": 0,
+            "F2EQF1_a1": 0,
+            "F2EQF1_a2": 0,
+            "F2EQF1_a3": 0,
+            "F2EQF1_a4": 0,
+            "F2EQF1_a5": 0,
+            "F2EQF1_a6": 0,
+            "F2EQF1_a7": 0,
+
+            "F2EQF2_low_lim": 0,
+            "F2EQF2_up_lim": 0,
+            "F2EQF2_a0": 0,
+            "F2EQF2_a1": 0,
+            "F2EQF2_a2": 0,
+            "F2EQF2_a3": 0,
+            "F2EQF2_a4": 0,
+            "F2EQF2_a5": 0,
+            "F2EQF2_a6": 0,
+            "F2EQF2_a7": 0,
+
+            }
+
         self._ds_tran_combo = '~'.join([self._driving_sys.serial, self._transducer.serial])
         if self._ds_tran_combo in self._equip_combos:
             self._update_conv_param()
@@ -247,19 +301,22 @@ class Sequence():
                 info += ("Pressure [Pa] vs. amplitude [%] equation (A = a*P + b): A = " +
                          f"{self.P2A_a}*P + {self.P2A_b} \n ")
 
+                info += ("FWHM center wrt exit plane [mm] vs. set focus [%] equation (SF = " +
+                         f"a*FWHMC + b): SF = {self.DF2SF_a}*FWHMC + {self.DF2SF_b} \n ")
+
                 info += ("Normalized pressure [-] vs. focal depth wrt exit plane [mm] equation " +
                          f"between a focus wrt exit plane of {self.F2EQF1_low_lim} and " +
                          f"{self.F2EQF1_up_lim} [mm] (EQ1 = a0 + a1*f + a2*f^2 + a3*f^3 + a4*f^4 " +
                          f"+ a5*f^5): EQ1 = {self.F2EQF1_a0} + {self.F2EQF1_a1}*f + " +
                          f"{self.F2EQF1_a2}*f^2 + {self.F2EQF1_a3}*f^3 + {self.F2EQF1_a4}*f^4 + " +
-                         "{self.F2EQF1_a5}*f^5 \n ")
+                         f"{self.F2EQF1_a5}*f^5 + {self.F2EQF1_a6}*f^6 + {self.F2EQF1_a7}*f^7 \n ")
 
                 info += ("Normalized pressure [-] vs. focal depth wrt exit plane [mm] equation " +
                          f"between a focus wrt exit plane of {self.F2EQF2_low_lim} and " +
                          f"{self.F2EQF2_up_lim} [mm] (EQ1 = a0 + a1*f + a2*f^2 + a3*f^3 + a4*f^4 " +
                          f"+ a5*f^5): EQ1 = {self.F2EQF2_a0} + {self.F2EQF2_a1}*f + " +
                          f"{self.F2EQF2_a2}*f^2 + {self.F2EQF2_a3}*f^3 + {self.F2EQF2_a4}*f^4 + " +
-                         "{self.F2EQF2_a5}*f^5 \n ")
+                         f"{self.F2EQF2_a5}*f^5 + {self.F2EQF2_a6}*f^6 + {self.F2EQF2_a7}*f^7\n ")
 
                 info += ("Normalized pressure [-] based on chosen focal depth wrt exit plane of " +
                          f"{self._focus_wrt_exit_plane} [mm]: {self._eq_factor} \n ")
@@ -699,7 +756,7 @@ class Sequence():
         """
 
         self._focus_wrt_exit_plane = focus
-        self._focus_wrt_mid_bowl = focus + self._transducer.exit_plane_dist
+        self._focus_wrt_mid_bowl = self.DF2SF_a * focus + self.DF2SF_b
 
         logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +
                     f'Focus wrt bowl middle [m]: {self._focus_wrt_mid_bowl}')
@@ -745,7 +802,7 @@ class Sequence():
         """
 
         self._focus_wrt_mid_bowl = focus
-        self._focus_wrt_exit_plane = focus - self._transducer.exit_plane_dist
+        self._focus_wrt_exit_plane = (focus - self.DF2SF_b) / self.DF2SF_a
 
         logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +
                     f'Focus wrt bowl middle [m]: {self._focus_wrt_mid_bowl}')
@@ -835,6 +892,32 @@ class Sequence():
         """
 
         return float(self._conv_param['P2A_b'])
+
+    @property
+    def DF2SF_a(self):
+        """
+        Getter method for the 1st order coefficient of FWHM center wrt exit plane [mm] vs. set focus
+        [mm] equation.
+
+        Returns:
+            float: The 1st order coefficient of FWHM center wrt exit plane [mm] vs. set focus [mm]
+            equation.
+        """
+
+        return float(self._conv_param['DF2SF_a'])
+
+    @property
+    def DF2SF_b(self):
+        """
+        Getter method for the 0-order coefficient of FWHM center wrt exit plane [mm] vs. set focus
+        [mm] equation.
+
+        Returns:
+            float: The 0-order coefficient of FWHM center wrt exit plane [mm] vs. set focus [mm]
+            equation.
+        """
+
+        return float(self._conv_param['DF2SF_b'])
 
     @property
     def F2EQF1_low_lim(self):
@@ -937,6 +1020,32 @@ class Sequence():
         return float(self._conv_param['F2EQF1_a5'])
 
     @property
+    def F2EQF1_a6(self):
+        """
+        Getter method for the 6th order coefficient of normalized pressure vs. focal depth wrt exit
+        plane [mm] equation.
+
+        Returns:
+            float: The 6th order coefficient of normalized pressure vs. focal depth wrt exit plane
+            [mm] equation.
+        """
+
+        return float(self._conv_param['F2EQF1_a6'])
+
+    @property
+    def F2EQF1_a7(self):
+        """
+        Getter method for the 7th order coefficient of normalized pressure vs. focal depth wrt exit
+        plane [mm] equation.
+
+        Returns:
+            float: The 7th order coefficient of normalized pressure vs. focal depth wrt exit plane
+            [mm] equation.
+        """
+
+        return float(self._conv_param['F2EQF1_a7'])
+
+    @property
     def F2EQF2_low_lim(self):
         """
         Getter method for the lower limit of F2EQF2 focal depth wrt exit plane [mm].
@@ -1035,6 +1144,32 @@ class Sequence():
         """
 
         return float(self._conv_param['F2EQF2_a5'])
+
+    @property
+    def F2EQF2_a6(self):
+        """
+        Getter method for the 6th order coefficient of normalized pressure vs. focal depth wrt exit
+        plane [mm] equation.
+
+        Returns:
+            float: The 6th order coefficient of normalized pressure vs. focal depth wrt exit plane
+            [mm] equation.
+        """
+
+        return float(self._conv_param['F2EQF2_a6'])
+
+    @property
+    def F2EQF2_a7(self):
+        """
+        Getter method for the 7th order coefficient of normalized pressure vs. focal depth wrt exit
+        plane [mm] equation.
+
+        Returns:
+            float: The 5th order coefficient of normalized pressure vs. focal depth wrt exit plane
+            [mm] equation.
+        """
+
+        return float(self._conv_param['F2EQF2_a7'])
 
     @property
     def eq_factor(self):
@@ -1225,6 +1360,9 @@ class Sequence():
             "P2A_a": config['Equipment.Combination.' + self._ds_tran_combo]['P2A a-coeff'],
             "P2A_b": config['Equipment.Combination.' + self._ds_tran_combo]['P2A b-coeff'],
 
+            "DF2SF_a": config['Equipment.Combination.' + self._ds_tran_combo]['DF2SF a-coeff'],
+            "DF2SF_b": config['Equipment.Combination.' + self._ds_tran_combo]['DF2SF b-coeff'],
+
             "F2EQF1_low_lim": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF1 foc. low lim.'],
             "F2EQF1_up_lim": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF1 foc. upper lim.'],
             "F2EQF1_a0": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF1 a0-coeff'],
@@ -1233,6 +1371,8 @@ class Sequence():
             "F2EQF1_a3": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF1 a3-coeff'],
             "F2EQF1_a4": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF1 a4-coeff'],
             "F2EQF1_a5": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF1 a5-coeff'],
+            "F2EQF1_a6": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF1 a6-coeff'],
+            "F2EQF1_a7": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF1 a7-coeff'],
 
             "F2EQF2_low_lim": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF2 foc. low lim.'],
             "F2EQF2_up_lim": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF2 foc. upper lim.'],
@@ -1242,6 +1382,8 @@ class Sequence():
             "F2EQF2_a3": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF2 a3-coeff'],
             "F2EQF2_a4": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF2 a4-coeff'],
             "F2EQF2_a5": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF2 a5-coeff'],
+            "F2EQF2_a6": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF2 a6-coeff'],
+            "F2EQF2_a7": config['Equipment.Combination.' + self._ds_tran_combo]['F2EQF2 a7-coeff'],
 
             }
 
@@ -1267,13 +1409,17 @@ class Sequence():
                                self.F2EQF1_a2*math.pow(self._focus_wrt_exit_plane, 2) +
                                self.F2EQF1_a3*math.pow(self._focus_wrt_exit_plane, 3) +
                                self.F2EQF1_a4*math.pow(self._focus_wrt_exit_plane, 4) +
-                               self.F2EQF1_a5*math.pow(self._focus_wrt_exit_plane, 5))
+                               self.F2EQF1_a5*math.pow(self._focus_wrt_exit_plane, 5) +
+                               self.F2EQF1_a6*math.pow(self._focus_wrt_exit_plane, 6) +
+                               self.F2EQF1_a7*math.pow(self._focus_wrt_exit_plane, 7))
         elif self._focus_wrt_exit_plane > self.F2EQF2_low_lim and self._focus_wrt_exit_plane <= self.F2EQF2_up_lim:
             self._eq_factor = (self.F2EQF2_a0 + self.F2EQF2_a1*self._focus_wrt_exit_plane +
                                self.F2EQF2_a2*math.pow(self._focus_wrt_exit_plane, 2) +
                                self.F2EQF2_a3*math.pow(self._focus_wrt_exit_plane, 3) +
                                self.F2EQF2_a4*math.pow(self._focus_wrt_exit_plane, 4) +
-                               self.F2EQF2_a5*math.pow(self._focus_wrt_exit_plane, 5))
+                               self.F2EQF2_a5*math.pow(self._focus_wrt_exit_plane, 5) +
+                               self.F2EQF2_a6*math.pow(self._focus_wrt_exit_plane, 6) +
+                               self.F2EQF2_a7*math.pow(self._focus_wrt_exit_plane, 7))
         else:
             logger.error(f'Focus wrt exit plane of {self._focus_wrt_exit_plane} mm is not within ' +
                          'the limits of {self.F2EQF1_low_lim} and {self.F2EQF2_up_lim} [mm].')
