@@ -127,7 +127,7 @@ seq1.wait_for_trigger = True
 
 # When you only want to trigger a pulse train repetition once: 'TriggerOnePulseTrainRepetition'
 # Multiple times triggering a pulse train repetition isn't supported.
-# to check available trigger options: print(seq.get_trigger_options())
+# to check available trigger options: print(seq1.get_trigger_options())
 seq1.trigger_option = 'TriggerSequence'
 
 if seq1.wait_for_trigger and seq1.trigger_option == config['General']['Trigger option.seq']:
@@ -142,7 +142,7 @@ else:
     # repetition interval
     seq1.pulse_train_rep_dur = 2  # [s], pulse train repetition duration, NOTE: DIFFERENT THAN SC
 
-# to get a summary of your entered sequence: print(seq)
+# to get a summary of your entered sequence: print(seq1)
 
 ##############################################################################
 # connect with driving system and execute sequence
