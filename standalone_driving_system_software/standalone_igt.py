@@ -60,7 +60,7 @@ seq1.transducer = 'IS_PCD15287_01001'
 
 # set general parameters
 seq1.oper_freq = 300  # [kHz], operating frequency
-seq1.focus = 40  # [mm], focal depth
+seq1.focus = 40  # [mm], focal depth w.r.t. middle of the transducer bowl and FWHM
 
 # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
 # One value (>0) is the degree of dephasing, for example [90] with 4 elements: 1 elem: 0 dephasing,
@@ -87,7 +87,7 @@ if use_two_transducers:
 
     # set general parameters
     seq2.oper_freq = 300  # [kHz], operating frequency
-    seq2.focus = 80  # [mm], focal depth
+    seq2.focus = 80  # [mm], focal depth w.r.t. middle of the transducer bowl and FWHM
 
     # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
     # One value (>0) is the degree of dephasing, for example [90] with 4 elements: 1 elem: 0
