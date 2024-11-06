@@ -210,7 +210,7 @@ How to use the script:
 
 - [ ] **A GUI to display, plan and execute an US sequence**
 - [ ] **Compatibility check of chosen equipment**
-- [ ] **Control a driving system with two transducers plugged-in**
+- [x] **Control a driving system with two transducers plugged-in**
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
