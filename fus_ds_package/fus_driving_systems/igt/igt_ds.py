@@ -327,7 +327,7 @@ class IGT(ds.ControlDrivingSystem):
             pulse.setFrequencies(tran_freq)
             if seq.dephasing_degree is not None and (len(seq.dephasing_degree) ==
                                                      seq.transducer.elements):
-                logger.info(f'Phases are overridden by phases set at dephasing_degree :{seq.dephasing_degree}')
+                logger.info(f'Phases are overridden by phases set at dephasing_degree: {seq.dephasing_degree}')
                 phases = phases + seq.dephasing_degree
             else:
                 computed_phases = self._set_phases(pulse, seq.focus, seq.transducer.steer_info,
@@ -523,10 +523,11 @@ class IGT(ds.ControlDrivingSystem):
 
         # set same phase offset for all channels (angle in [0,360] degrees)
         if sequence.dephasing_degree is not None and len(sequence.dephasing_degree) == sequence.transducer.elements:
-                logger.info(f'Phases are overridden by phases set at dephasing_degree :{sequence.dephasing_degree}')
-                pulse.setPhases(sequence.dephasing_degree)
+            logger.info(f'Phases are overridden by phases set at dephasing_degree :{sequence.dephasing_degree}')
+            pulse.setPhases(sequence.dephasing_degree)
         else:
-            phases = self._set_phases(pulse, sequence.focus, sequence.transducer.steer_info,
+            phases = self._set_phases(pulse, sequence.focus_wrt_mid_bowl,
+                                      sequence.transducer.steer_info,
                                       sequence.transducer.natural_foc, sequence.dephasing_degree)
             pulse.setPhases(phases)
 
@@ -558,7 +559,7 @@ class IGT(ds.ControlDrivingSystem):
 
         Parameters:
             pulse (unifus.Pulse): The defined pulse.
-            focus (float): The focus value [mm].
+            focus (float): The focus value wrt the middle of the transducer bowl [mm].
             steer_info (str): Path to the steer information.
             natural_foc (float): The natural focus value [mm] used to calculate target focus.
             dephasing_degree (list(float)): The degree used to dephase n elements in one cycle.
@@ -699,5 +700,15 @@ class IGT(ds.ControlDrivingSystem):
             ampl_ramp = np.zeros(n_points)
             for i in range(n_points):
                 ampl_ramp[i] = 0.5 * (1 + math.cos((2*math.pi/alpha) * (x[i] - alpha/2)))
+
+        elif sequence.pulse_ramp_shape == config['General']['Ramp shape.shota']:
+            # amount of points where ramping is applied
+            n_points = math.floor(sequence.pulse_ramp_dur/pulse_ramp_temp_res)
+            pulse_ramp_dur_s = sequence.pulse_ramp_dur / 1000
+            f = 1 / (2 * pulse_ramp_dur_s)   # [Hz]
+            x = np.linspace(0, pulse_ramp_dur_s, n_points)
+            ampl_ramp = np.zeros(n_points)
+            for i in range(n_points):
+                ampl_ramp[i] = 0.5 * (1 + math.sin(2*math.pi*f*x[i] - math.pi/2))
 
         return ampl_ramp

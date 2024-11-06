@@ -60,7 +60,7 @@ seq1.transducer = 'IS_PCD15287_01001'
 
 # set general parameters
 seq1.oper_freq = 300  # [kHz], operating frequency
-seq1.focus = 40  # [mm], focal depth w.r.t. middle of the transducer bowl and FWHM
+seq1.focus_wrt_exit_plane = 40  # [mm], focal depth w.r.t. the exit plane and FWHM middle
 
 # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
 # One value (>0) is the degree of dephasing, for example [90] with 4 elements: 1 elem: 0 dephasing,
@@ -69,7 +69,6 @@ seq1.focus = 40  # [mm], focal depth w.r.t. middle of the transducer bowl and FW
 # based on the set focus.
 seq1.dephasing_degree = None  # [degrees]: None, [120] or [0, 135, 239, 90]
 
-# THE FEATURE IS NOT ENABLED YET! Use amplitude only for now
 # either set maximum pressure in free water [MPa], voltage [V] or amplitude [%]
 # seq1.press = 1  # [MPa], maximum pressure in free water
 # seq1.volt = 0  # [V], voltage per channel
@@ -87,7 +86,7 @@ if use_two_transducers:
 
     # set general parameters
     seq2.oper_freq = 300  # [kHz], operating frequency
-    seq2.focus = 80  # [mm], focal depth w.r.t. middle of the transducer bowl and FWHM
+    seq2.focus_wrt_exit_plane = 80  # [mm], focal depth w.r.t. the exit plane and FWHM middle
 
     # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
     # One value (>0) is the degree of dephasing, for example [90] with 4 elements: 1 elem: 0
@@ -96,7 +95,6 @@ if use_two_transducers:
     # based on the set focus.
     seq2.dephasing_degree = None  # [degrees]: None, [120] or [0, 135, 239, 90]
 
-    # THE FEATURE IS NOT ENABLED YET! Use amplitude only for now
     # either set maximum pressure in free water [MPa], voltage [V] or amplitude [%]
     # seq2.press = 1  # [MPa], maximum pressure in free water
     # seq2.volt = 0  # [V], voltage per channel
@@ -111,7 +109,7 @@ seq1.pulse_dur = 10  # [ms], pulse duration
 seq1.pulse_rep_int = 200  # [ms], pulse repetition interval
 
 # pulse ramping
-# to check available ramp shapes: print(seq.get_ramp_shapes())
+# to check available ramp shapes: print(seq1.get_ramp_shapes())
 # choose one ramp shape from that list as input
 seq1.pulse_ramp_shape = 'Rectangular - no ramping'
 
