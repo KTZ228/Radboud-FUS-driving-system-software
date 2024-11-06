@@ -8,11 +8,11 @@ if "%MODE%"=="" set "MODE=%DEFAULT_MODE%"
 
 if "%MODE%" == "DCCN" (
 	set "DEFAULT_VENV_PATH=D:\Users\%USERNAME%\venv310"
-	set "DEFAULT_IDE=C:\Program Files\Python310\pythonw.exe C:\Program Files\Python310\Lib\idlelib\idle.pyw"
 ) else (
 	set "DEFAULT_VENV_PATH=%USERPROFILE%\Envs\FUS_DS_PACKAGE"
-	set "DEFAULT_IDE=spyder"
 )
+
+set "DEFAULT_IDE=spyder"
 
 set "VENV_PATH=%~1"
 if "%VENV_PATH%"=="" set "VENV_PATH=%DEFAULT_VENV_PATH%"
