@@ -772,7 +772,7 @@ class Sequence():
             # Update voltage accordingly
             self._calc_volt()
 
-            logger.info(f"New focus wrt exit plane of {self._focus_wrt_mid_bowl:.2f} [mm] results" +
+            logger.info(f"New focus wrt exit plane of {self._focus_wrt_exit_plane:.2f} [mm] results" +
                         f" in an equalization factor of {self._eq_factor:.2f} recalcultating the " +
                         f"maximum pressure in free water as {self._press:.2f} [MPa], the voltage " +
                         f"as {self._volt:.2f} [V], and the amplitude as {self._ampl:.1f} [%].")
