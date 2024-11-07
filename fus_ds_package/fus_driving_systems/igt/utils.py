@@ -144,7 +144,7 @@ class ExecListener(unifus.FUSListener):
         # Start with a sleep to make sure the start event has been received
         # and _running has been set to true.
         while True:
-            time.sleep(0.2)
+            time.sleep(0.002)
             if not self._running:
                 return
             if time.time() > maxWait:
