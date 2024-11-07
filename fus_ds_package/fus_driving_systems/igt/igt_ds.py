@@ -206,7 +206,8 @@ class IGT(ds.ControlDrivingSystem):
             List: List of error messages.
         """
 
-        error_messages = []
+        error_messages = super().validate_sequence(sequence)
+
         if sequence.pulse_dur < 0.001:  # [ms]:
             error_messages.append('Pulse duration is not allowed to be smaller than 1 us.')
 

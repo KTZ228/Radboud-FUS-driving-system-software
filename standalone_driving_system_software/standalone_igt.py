@@ -111,7 +111,7 @@ seq1.pulse_dur = 10  # [ms], pulse duration
 seq1.pulse_rep_int = 200  # [ms], pulse repetition interval
 
 # pulse ramping
-# to check available ramp shapes: print(seq.get_ramp_shapes())
+# to check available ramp shapes: print(seq1.get_ramp_shapes())
 # choose one ramp shape from that list as input
 seq1.pulse_ramp_shape = 'Rectangular - no ramping'
 
