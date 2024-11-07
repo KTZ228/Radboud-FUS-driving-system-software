@@ -223,6 +223,12 @@ class IGT(ds.ControlDrivingSystem):
         if sequence.ampl is None:
             error_messages.append("Intensity parameter may be set incorrectly. Amplitude is None.")
 
+        n_pulses = sequence.pulse_train_dur/sequence.pulse_rep_int
+        max_n_pulses = 64
+        if n_pulses > max_n_pulses:
+            error_messages.append("The maximum amount of pulses within a pulse train is " +
+                                  f"{max_n_pulses}. Currently, the amount is {n_pulses}.")
+
         return error_messages
 
     def send_sequence(self, seq1, seq2=None):
