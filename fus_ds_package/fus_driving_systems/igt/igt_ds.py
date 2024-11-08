@@ -273,7 +273,7 @@ class IGT(ds.ControlDrivingSystem):
             n_pulse_train_rep = math.floor(seq1.pulse_train_rep_dur / seq1.pulse_train_rep_int)
 
             # Apply ramping
-            if seq1.pulse_ramp_shape != config['General']['Ramp shape.rect']:
+            if seq1.pulse_ramp_shape != config['General']['Ramp shape.rect'] and seq1.ampl > 0:
                 self._apply_ramping(seq1)
 
             # (optional) restore disabled channels

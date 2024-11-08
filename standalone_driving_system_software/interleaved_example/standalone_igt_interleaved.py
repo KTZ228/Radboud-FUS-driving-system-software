@@ -13,11 +13,9 @@ Author: ir. Margely Cornelissen, FUS Initiative, Radboud University
 # initialize logging.
 ##############################################################################
 
-from fus_driving_systems.config.config import config_info as config
-
 from fus_driving_systems.config.logging_config import initialize_logger
 
-log_dir = "D:\\Users\julkos\logs"
+log_dir = "C:\\Temp"
 filename = "standalone_igt"
 logger = initialize_logger(log_dir, filename)
 

@@ -87,9 +87,11 @@ def create_sequence_collection():
     # you can use the TUS Calculator to visualize the timing parameters:
     # https://www.socsci.ru.nl/fusinitiative/tuscalculator/
 
+    interleave_diff = 13.9  # [ms]
+
     # ## pulse ## #
     seq3.pulse_dur = 45  # [ms], pulse duration
-    seq3.pulse_rep_int = 100  # [ms], pulse repetition interval
+    seq3.pulse_rep_int = 100 - interleave_diff  # [ms], pulse repetition interval
 
     # pulse ramping
     # to check available ramp shapes: print(seq3.get_ramp_shapes())
@@ -101,7 +103,7 @@ def create_sequence_collection():
 
     # ## pulse train ## #
     # if you only want one pulse train, keep the values equal to the pulse repetition interval
-    seq3.pulse_train_dur = 100  # [ms], pulse train duration
+    seq3.pulse_train_dur = 100 - interleave_diff  # [ms], pulse train duration
 
     # set wait_for_trigger to true if you want to use trigger
     seq3.wait_for_trigger = False
@@ -114,13 +116,13 @@ def create_sequence_collection():
         seq3.n_triggers = 4  # number of timings above defined sequence will be triggered
 
     else:
-        seq3.pulse_train_rep_int = 100  # [ms], pulse train repetition interval, NOTE: DIFFERENT THAN SC
+        seq3.pulse_train_rep_int = 100 - interleave_diff  # [ms], pulse train repetition interval, NOTE: DIFFERENT THAN SC
 
         # ## pulse train repetition ## #
         # if you only want one pulse train, keep the value equal to the pulse repetition interval
         # if you only want one pulse train repetition block, keep the value equal to the pulse train
         # repetition interval
-        seq3.pulse_train_rep_dur = 0.1  # [s], pulse train repetition duration, NOTE: DIFFERENT THAN SC
+        seq3.pulse_train_rep_dur = (100 - interleave_diff) / 1000  # [s], pulse train repetition duration, NOTE: DIFFERENT THAN SC
 
     # to get a summary of your entered sequence: print(seq3)
 
