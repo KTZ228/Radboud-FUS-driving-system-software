@@ -69,13 +69,16 @@ class IGT(ds.ControlDrivingSystem):
         total_sequence_duration_ms (float): Total duration of the sequence in milliseconds.
     """
 
-    def __init__(self):
+    def __init__(self, log_dir='C:\\Temp'):
         """
         Initializes the IGT object.
         """
-        super().__init__()
 
-        with open("C:/Temp/faulthandler_output.log", "w") as f:
+        super().__init__()
+        
+        fault_handler_path = os.path.join(log_dir, 'faulthandler_output.log')
+
+        with open(fault_handler_path, "w") as f:
             faulthandler.enable(file=f)
 
         self.sent_seq_nums = []
