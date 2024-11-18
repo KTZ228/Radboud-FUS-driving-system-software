@@ -1517,7 +1517,7 @@ class Sequence():
         """
 
         # Prevent division by zero
-        if self.V2P_a == 0:
+        if self.V2A_a == 0:
             self._volt = 0
         else:
             self._volt = (self._ampl - self.V2A_b) / self.V2A_a
