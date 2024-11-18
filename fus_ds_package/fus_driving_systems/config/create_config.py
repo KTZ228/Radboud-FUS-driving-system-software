@@ -54,7 +54,7 @@ RAMP_LIN = 'Linear'
 RAMP_TUK = 'Tukey'
 RAMP_SHOTA = 'Shota'
 
-config['General']['Ramp shapes'] = '\n'.join([RAMP_RECT, RAMP_LIN, RAMP_TUK, RAMP_SHOTA])
+config['General']['Ramp shapes'] = '\n'.join([RAMP_RECT, RAMP_LIN, RAMP_TUK])
 config['General']['Ramp shape.rect'] = RAMP_RECT
 config['General']['Ramp shape.lin'] = RAMP_LIN
 config['General']['Ramp shape.tuk'] = RAMP_TUK
@@ -76,6 +76,7 @@ POW_AMPL = 'Amplitude [%]'
 POW_PRESS = 'Max. pressure in free water [MPa]'
 POW_VOLT = 'Voltage [V]'
 
+config['General']['Power options'] = '\n'.join([POW_GP, POW_AMPL, POW_PRESS, POW_VOLT])
 config['General']['Power option.glob_pow'] = POW_GP
 config['General']['Power option.ampl'] = POW_AMPL
 config['General']['Power option.press'] = POW_PRESS

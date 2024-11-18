@@ -206,7 +206,8 @@ class IGT(ds.ControlDrivingSystem):
             List: List of error messages.
         """
 
-        error_messages = []
+        error_messages = super().validate_sequence(sequence)
+
         if sequence.pulse_dur < 0.001:  # [ms]:
             error_messages.append('Pulse duration is not allowed to be smaller than 1 us.')
 
@@ -221,6 +222,12 @@ class IGT(ds.ControlDrivingSystem):
                                       '70 us between ramping up and down')
         if sequence.ampl is None:
             error_messages.append("Intensity parameter may be set incorrectly. Amplitude is None.")
+
+        n_pulses = sequence.pulse_train_dur/sequence.pulse_rep_int
+        max_n_pulses = 64
+        if n_pulses > max_n_pulses:
+            error_messages.append("The maximum amount of pulses within a pulse train is " +
+                                  f"{max_n_pulses}. Currently, the amount is {n_pulses}.")
 
         return error_messages
 
