@@ -875,7 +875,7 @@ class Sequence():
         self._focus_wrt_mid_bowl = focus
         
         # Check if pressure compensation is available for chosen equipment
-        if self._ds_tran_combo in self._equip_combos:
+        if self._ds_tran_combo in self._equip_combos and self.DF2SF_a != 0:
             self._focus_wrt_exit_plane = (focus - self.DF2SF_b) / self.DF2SF_a
         else:
             logger.warning('Compensation equations are not available. ' +
