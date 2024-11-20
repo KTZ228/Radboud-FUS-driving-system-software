@@ -35,7 +35,6 @@ import sys
 
 # Miscellaneous packages
 import math
-import sys
 
 # Own packages
 from fus_driving_systems import driving_system as ds
@@ -523,7 +522,7 @@ class Sequence():
         # set new default operating frequency and focus based on chosen transducer
         self._oper_freq = int(self._transducer.fund_freq)
         self._focus_wrt_exit_plane = self._transducer.min_foc  # [mm]
-        
+
         # Check if driving system is initialized
         if hasattr(self, '_driving_sys'):
             # Update equipment combo
@@ -535,7 +534,6 @@ class Sequence():
                 self._focus_wrt_mid_bowl = self.DF2SF_a * self._focus_wrt_exit_plane + self.DF2SF_b
             else:
                 self._focus_wrt_mid_bowl = self._focus_wrt_exit_plane + self._transducer.exit_plane_dist
-                
 
     @property
     def oper_freq(self):
@@ -675,8 +673,8 @@ class Sequence():
                 # Convert required voltage to amplitude
                 self._calc_ampl()
 
-                logger.info(f'New maximum pressure in free water value of {self._press:.2f} [MPa] ' +
-                            f'results in a voltage of {self._volt:.2f} [V] and an amplitude ' +
+                logger.info(f'New maximum pressure in free water value of {self._press:.2f} [MPa]' +
+                            f' results in a voltage of {self._volt:.2f} [V] and an amplitude ' +
                             f'of {self._ampl:.2f} [%].')
         else:
             logger.warning('No pressure compensation parameters available in the configuration' +
@@ -722,8 +720,8 @@ class Sequence():
                 self._calc_press()
 
                 logger.info(f'New voltage value of {self._volt:.2f} [V] results in a maximum' +
-                            f' pressure in free water of {self._press:.2f} [MPa] and an amplitude ' +
-                            f'of {self._ampl:.2f} [%].')
+                            f' pressure in free water of {self._press:.2f} [MPa] and an amplitude' +
+                            f' of {self._ampl:.2f} [%].')
         else:
             logger.warning('No pressure compensation parameters available in the configuration' +
                            ' file for chosen equipment combination. Enter amplitude [%].')
@@ -809,25 +807,25 @@ class Sequence():
         is_validated = validate_value(focus, 'Focus wrt exit plane [mm] (focus_wrt_exit_plane)',
                                       True, True, False, False)
 
-        if focus < self._transducer.min_foc or focus > self._transducer.max_foc:
-            logger.error(f'Focus of {focus} [mm] is not within the set focus range of ' +
-                                f'{self._transducer.min_foc} and {self._transducer.max_foc} of ' +
-                                f'transducer {self._transducer.name}')
-            sys.exit()
-
         if is_validated:
-            self._focus_wrt_exit_plane = focus
-          
-            # Check if pressure compensation is available for chosen equipment
-            if self._ds_tran_combo in self._equip_combos:
-                self._focus_wrt_mid_bowl = self.DF2SF_a * focus + self.DF2SF_b
-            else:
-                logger.warning('Compensation equations are not available. ' +
-                               'Calculate focus wrt mid bowl based on exit ' +
-                               'plane distance of '  + 
+            if self._ds_tran_combo not in self._equip_combos:
+                # Check if focus is within range if compensation equations are not applicable
+                if focus < self._transducer.min_foc or focus > self._transducer.max_foc:
+                    logger.error(f'Focus wrt exit plane of {focus} [mm] is not within the set ' +
+                                 f'focus range of {self._transducer.min_foc} and ' +
+                                 f'{self._transducer.max_foc} [mm] of transducer ' +
+                                 f'{self._transducer.name}.')
+                    sys.exit()
+
+                logger.warning('Compensation equations are not available or applicable. ' +
+                               'Calculate focus wrt mid bowl based on exit plane distance of ' +
                                f'{self._transducer.exit_plane_dist} [mm].')
                 self._focus_wrt_mid_bowl = focus + self._transducer.exit_plane_dist
-               
+
+            else:
+                self._focus_wrt_mid_bowl = self.DF2SF_a * focus + self.DF2SF_b
+
+            self._focus_wrt_exit_plane = focus
 
             logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +
                         f'Focus wrt bowl middle [mm]: {self._focus_wrt_mid_bowl}')
@@ -843,10 +841,11 @@ class Sequence():
             # Update voltage accordingly
             self._calc_volt()
 
-            logger.info(f"New focus wrt exit plane of {self._focus_wrt_exit_plane:.2f} [mm] results" +
-                        f" in an equalization factor of {self._eq_factor:.2f} recalcultating the " +
-                        f"maximum pressure in free water as {self._press:.2f} [MPa], the voltage " +
-                        f"as {self._volt:.2f} [V], and the amplitude as {self._ampl:.1f} [%].")
+            logger.info(f"New focus wrt exit plane of {self._focus_wrt_exit_plane:.2f} [mm] " +
+                        f" results in an equalization factor of {self._eq_factor:.2f} " +
+                        f"recalcultating the maximum pressure in free water as {self._press:.2f} " +
+                        f"[MPa], the voltage as {self._volt:.2f} [V], and the amplitude as " +
+                        f"{self._ampl:.1f} [%].")
 
     @property
     def focus_wrt_mid_bowl(self):
@@ -872,20 +871,31 @@ class Sequence():
             middle of the FWHM.
         """
 
-        self._focus_wrt_mid_bowl = focus
-        
-        # Check if pressure compensation is available for chosen equipment
-        if self._ds_tran_combo in self._equip_combos and self.DF2SF_a != 0:
-            self._focus_wrt_exit_plane = (focus - self.DF2SF_b) / self.DF2SF_a
-        else:
-            logger.warning('Compensation equations are not available. ' +
-                           'Calculate focus wrt exit plane based on exit ' +
-                           'plane distance of '  + 
-                           f'{self._transducer.exit_plane_dist} [mm].')
-            self._focus_wrt_exit_plane = focus - self._transducer.exit_plane_dist
+        is_validated = validate_value(focus, 'Focus wrt mid bowl [mm] (focus_wrt_mid_bowl)',
+                                      True, True, False, False)
 
-        logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +
-                    f'Focus wrt bowl middle [mm]: {self._focus_wrt_mid_bowl}')
+        if is_validated:
+            if self._ds_tran_combo in self._equip_combos and self.DF2SF_a != 0:
+                self._focus_wrt_exit_plane = (focus - self.DF2SF_b) / self.DF2SF_a
+            else:
+                logger.warning('Compensation equations are not available or applicable, or ' +
+                               'a-coefficient of focus equation (DF2SF_a) is zero. Calculate ' +
+                               'focus wrt exit plane based on exit plane distance of ' +
+                               f'{self._transducer.exit_plane_dist} [mm].')
+                self._focus_wrt_exit_plane = focus - self._transducer.exit_plane_dist
+
+                # Check if focus is within range if compensation equations are not applicable
+                if self._focus_wrt_exit_plane < self._transducer.min_foc or self._focus_wrt_exit_plane > self._transducer.max_foc:
+                    logger.error(f'Focus wrt exit plane of {focus} [mm] is not within the set ' +
+                                 f'focus range of {self._transducer.min_foc} and ' +
+                                 f'{self._transducer.max_foc} [mm] of transducer ' +
+                                 f'{self._transducer.name}.')
+                    sys.exit()
+
+            self._focus_wrt_mid_bowl = focus
+
+            logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +
+                        f'Focus wrt bowl middle [mm]: {self._focus_wrt_mid_bowl}')
 
         # Check if pressure compensation is available for chosen equipment
         if self._ds_tran_combo in self._equip_combos:
@@ -1581,6 +1591,7 @@ class Sequence():
 
         press_pa = (self._ampl - self.P2A_b) / (self.P2A_a * self._eq_factor)
         self._press = press_pa * 1e-6  # convert to MPa
+
 
 def validate_value(value, input_param, check_num, check_pos, check_nonzero, check_bool):
     """
