@@ -70,9 +70,9 @@ seq1.focus_wrt_exit_plane = 40  # [mm], focal depth w.r.t. the exit plane and FW
 seq1.dephasing_degree = None  # [degrees]: None, [120] or [0, 135, 239, 90]
 
 # either set maximum pressure in free water [MPa], voltage [V] or amplitude [%]
-# seq1.press = 1  # [MPa], maximum pressure in free water
-# seq1.volt = 0  # [V], voltage per channel
-seq1.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
+seq1.press = 0.5  # [MPa], maximum pressure in free water
+# seq1.volt = 5  # [V], voltage per channel
+# seq1.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
 
 seq2 = None  # seq2 is None of a second transducer isn't used
 if use_two_transducers:
@@ -96,9 +96,9 @@ if use_two_transducers:
     seq2.dephasing_degree = None  # [degrees]: None, [120] or [0, 135, 239, 90]
 
     # either set maximum pressure in free water [MPa], voltage [V] or amplitude [%]
-    # seq2.press = 1  # [MPa], maximum pressure in free water
+    seq2.press = 0.7  # [MPa], maximum pressure in free water
     # seq2.volt = 0  # [V], voltage per channel
-    seq2.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
+    # seq2.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
 
 # # timing parameters # #
 # you can use the TUS Calculator to visualize the timing parameters:

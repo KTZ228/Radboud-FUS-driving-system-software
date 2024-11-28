@@ -337,7 +337,8 @@ class IGT(ds.ControlDrivingSystem):
                 logger.info(f'Phases are overridden by phases set at dephasing_degree: {seq.dephasing_degree}')
                 phases = phases + seq.dephasing_degree
             else:
-                computed_phases = self._set_phases(pulse, seq.focus, seq.transducer.steer_info,
+                computed_phases = self._set_phases(pulse, seq.focus_wrt_mid_bowl,
+                                                   seq.transducer.steer_info,
                                                    seq.transducer.natural_foc,
                                                    seq.dephasing_degree)
                 phases = phases + computed_phases

@@ -669,11 +669,11 @@ class Sequence():
 
                 self._chosen_power = config['General']['Power option.press']
 
-                # Calculate required voltage
-                self._calc_volt()
-
-                # Convert required voltage to amplitude
+                # Convert required amplitude
                 self._calc_ampl()
+
+                # Calculate voltage for logging
+                self._calc_volt()
 
                 logger.info(f'New maximum pressure in free water value of {self._press:.2f} [MPa]' +
                             f' results in a voltage of {self._volt:.2f} [V] and an amplitude ' +
