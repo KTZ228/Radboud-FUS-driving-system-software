@@ -67,6 +67,7 @@ class Sequence():
         _press (float): [IGT] maximum pressure in free water [MPa].
         _volt (float): [IGT] voltage [V].
         _ampl (float): [IGT] amplitude [%].
+        _chosen_focus (str): The chosen focus parameter (wrt exit plane or mid bowl).
         _focus_wrt_exit_plane (float): Focal depth of the sequence w.r.t. exit plane respresenting
                                        the FWHM middle [mm].
         _focus_wrt_mid_bowl (float): Focal depth of the sequence w.r.t. transducer bowl middle
@@ -188,7 +189,7 @@ class Sequence():
         self._n_triggers = 0
 
         # set a temporary focus wrt mid bowl and operating frequency to set a default transducer
-        self._chosen_power = ''
+        self._chosen_power = self.get_power_options()[0]
 
         self._global_power = 0  # SC: global power [W]
         self._press = 0  # IGT: maximum pressure in free water [MPa]
@@ -205,6 +206,7 @@ class Sequence():
         def_tran_serial = tran.get_tran_serials()[0]
         self.transducer = def_tran_serial
 
+        self._chosen_focus = self.get_focus_options()[0]
         self._focus_wrt_exit_plane = self._focus_wrt_mid_bowl - self._transducer.exit_plane_dist
 
         # If applicable, retrieve conversion parameters
@@ -773,14 +775,49 @@ class Sequence():
                 # Equipment is not part a combination, so only set amplitude
                 logger.info('Chosen transducer - driving system combination ' +
                             'is not apart of configured combinations. ' +
-                            'Pressure and voltage cannot be calculated, so ' +
-                            ' only amplitude is accepted as input.')
+                            'Pressure and voltage cannot be calculated.')
         else:
             # Chosen system is not IGT.
             if ampl > 0:
                 logger.warning('Amplitude parameter is not available for ' +
                                'chosen driving system. Use global_power [mW]' +
                                ' instead.')
+
+    def get_focus_options(self):
+        """
+        Returns a list of available focus options.
+
+        Returns:
+            List[str]: Available focus options.
+        """
+
+        return config['General']['Focus options'].split('\n')
+
+    @property
+    def chosen_focus(self):
+        """
+        Getter method for the chosen_focus.
+
+        Returns:
+            str: The chosen focus parameter.
+        """
+
+        return self._chosen_focus
+
+    @chosen_focus.setter
+    def chosen_focus(self, chosen_focus):
+        """
+        Setter method for the chosen_focus.
+
+        Parameters:
+            chosen_focus (str): The chosen focus parameter.
+        """
+
+        if chosen_focus not in self.get_focus_options():
+            logger.error(f'{chosen_focus} is not an available option.')
+            sys.exit()
+        else:
+            self._chosen_focus = chosen_focus
 
     @property
     def focus_wrt_exit_plane(self):
@@ -825,6 +862,7 @@ class Sequence():
             else:
                 self._focus_wrt_mid_bowl = self.DF2SF_a * focus + self.DF2SF_b
 
+            self._chosen_focus = config['General']['Focus option.exit']
             self._focus_wrt_exit_plane = focus
 
             logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +
@@ -892,6 +930,7 @@ class Sequence():
                                  f'{self._transducer.name}.')
                     sys.exit()
 
+            self._chosen_focus = config['General']['Focus option.bowl']
             self._focus_wrt_mid_bowl = focus
 
             logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +

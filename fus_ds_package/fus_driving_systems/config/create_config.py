@@ -82,6 +82,14 @@ config['General']['Power option.ampl'] = POW_AMPL
 config['General']['Power option.press'] = POW_PRESS
 config['General']['Power option.volt'] = POW_VOLT
 
+# Focus options
+FOC_WRT_EXIT = 'Focus wrt exit plane [mm]'
+FOC_WRT_BOWL = 'Focus wrt mid bowl [mm]'
+
+config['General']['Focus options'] = '\n'.join([FOC_WRT_EXIT, FOC_WRT_BOWL])
+config['General']['Focus option.exit'] = FOC_WRT_EXIT
+config['General']['Focus option.bowl'] = FOC_WRT_BOWL
+
 config['Equipment'] = {}
 
 #######################################################################################
