@@ -45,7 +45,7 @@ config['General']['Configuration file folder'] = CONFIG_FOLDER
 
 config['General']['Temporary logging path'] = 'C:\\Temp'
 
-MAX_ALLOWED_PRESSURE = 1.2  # MPa
+MAX_ALLOWED_PRESSURE = 1.4  # MPa
 config['General']['Maximum pressure allowed in free water [MPa]'] = str(MAX_ALLOWED_PRESSURE)
 
 # if ramp shapes are changed, don't forget to change values used in code as well

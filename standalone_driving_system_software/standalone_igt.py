@@ -32,6 +32,8 @@ logger = initialize_logger(log_dir, filename)
 # import the 'fus_driving_systems - sequence' into your code
 ##############################################################################
 
+import sys
+
 from fus_driving_systems import driving_system, transducer
 from fus_driving_systems import sequence
 
@@ -84,6 +86,16 @@ if use_two_transducers:
     # choose one transducer from that list as input
     seq2.transducer = 'IS_PCD15287_01002'
 
+    # Check if available channels is equal to the number of elements of the transducers combined
+    n_comb_elem = seq1.transducer.elements + seq2.transducer.elements
+    if seq1.driving_sys.available_ch != n_comb_elem:
+        logger.error(f'Number of available channels ({seq1.driving_sys.available_ch}) is not ' +
+                     f'equal to the number of elements of the transducers combined ({n_comb_elem}' +
+                     f'). Equipment configuration {seq1.driving_sys.name} - ' +
+                     f'{seq1.transducer.name} & {seq2.transducer.name} does ' +
+                     'not seem to be compatible or use_two_transducers is incorrectly True.')
+        sys.exit()
+
     # set general parameters
     seq2.oper_freq = 300  # [kHz], operating frequency
     seq2.focus_wrt_exit_plane = 80  # [mm], focal depth w.r.t. the exit plane and FWHM middle
@@ -99,6 +111,14 @@ if use_two_transducers:
     seq2.press = 0.7  # [MPa], maximum pressure in free water
     # seq2.volt = 0  # [V], voltage per channel
     # seq2.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
+
+# Check if available channels is equal to the number of elements of the transducer
+elif seq1.driving_sys.available_ch != seq1.transducer.elements:
+    logger.error(f'Number of available channels ({seq1.driving_sys.available_ch}) is not equal to' +
+                 f' the number of elements of the transducer ({seq1.transducer.elements}). ' +
+                 f'Equipment configuration {seq1.driving_sys.name} - {seq1.transducer.name} does ' +
+                 'not seem to be compatible or use_two_transducers is incorrectly False.')
+    sys.exit()
 
 # # timing parameters # #
 # you can use the TUS Calculator to visualize the timing parameters:

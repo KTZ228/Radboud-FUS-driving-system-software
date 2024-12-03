@@ -632,9 +632,10 @@ class Sequence():
         else:
             # Chosen system is not SC.
             if global_power > 0:
-                logger.warning('Global power parameter is not available for ' +
-                               'chosen driving system. Use ampl [%], press ' +
-                               '[MPa] or volt [V] instead.')
+                logger.error('Global power parameter is not available for ' +
+                             'chosen driving system. Use ampl [%], press ' +
+                             '[MPa] or volt [V] instead.')
+                sys.exit()
 
     @property
     def press(self):
@@ -665,6 +666,13 @@ class Sequence():
             is_validated = validate_value(press, 'Maximum pressure in free water [MPa] (press)',
                                           True, True, False, False)
             if is_validated:
+                max_press = float(config['General']['Maximum pressure allowed in free water [MPa]'])
+                if press > max_press:
+                    logger.error(f'The set maximum pressure in free water of {press} [MPa] is ' +
+                                 f'crossing the allowed limit of {max_press} [MPa]. Please change' +
+                                 ' your value.')
+                    sys.exit()
+
                 self._press = press
 
                 self._chosen_power = config['General']['Power option.press']
@@ -679,8 +687,9 @@ class Sequence():
                             f' results in a voltage of {self._volt:.2f} [V] and an amplitude ' +
                             f'of {self._ampl:.2f} [%].')
         else:
-            logger.warning('No pressure compensation parameters available in the configuration' +
-                           ' file for chosen equipment combination. Enter amplitude [%].')
+            logger.error('No pressure compensation parameters available in the configuration' +
+                         ' file for chosen equipment combination. Enter amplitude [%].')
+            sys.exit()
 
     @property
     def volt(self):
@@ -725,8 +734,9 @@ class Sequence():
                             f' pressure in free water of {self._press:.2f} [MPa] and an amplitude' +
                             f' of {self._ampl:.2f} [%].')
         else:
-            logger.warning('No pressure compensation parameters available in the configuration' +
-                           ' file for chosen equipment combination. Enter amplitude [%].')
+            logger.error('No pressure compensation parameters available in the configuration' +
+                         ' file for chosen equipment combination. Enter amplitude [%].')
+            sys.exit()
 
     @property
     def ampl(self):
@@ -779,9 +789,10 @@ class Sequence():
         else:
             # Chosen system is not IGT.
             if ampl > 0:
-                logger.warning('Amplitude parameter is not available for ' +
-                               'chosen driving system. Use global_power [mW]' +
-                               ' instead.')
+                logger.error('Amplitude parameter is not available for ' +
+                             'chosen driving system. Use global_power [mW]' +
+                             ' instead.')
+                sys.exit()
 
     def get_focus_options(self):
         """
@@ -1629,7 +1640,16 @@ class Sequence():
         """
 
         press_pa = (self._ampl - self.P2A_b) / (self.P2A_a * self._eq_factor)
-        self._press = press_pa * 1e-6  # convert to MPa
+        press_mpa = press_pa * 1e-6  # convert to MPa
+
+        max_press = float(config['General']['Maximum pressure allowed in free water [MPa]'])
+        if press_mpa > max_press:
+            logger.error(f'The set maximum pressure in free water of {press_mpa} [MPa] is ' +
+                         f'crossing the allowed limit of {max_press} [MPa]. Please change' +
+                         ' your value.')
+            sys.exit()
+
+        self._press = press_mpa  # convert to MPa
 
 
 def validate_value(value, input_param, check_num, check_pos, check_nonzero, check_bool):

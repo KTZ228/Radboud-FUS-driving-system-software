@@ -277,6 +277,10 @@ class IGT(ds.ControlDrivingSystem):
             # Apply ramping
             if seq1.pulse_ramp_shape != config['General']['Ramp shape.rect']:
                 self._apply_ramping(seq1)
+            else:
+                self.gen.setPulseModulation([], 0, [], 0)  # disable any modulation
+                self.gen.setPulseRamp(unifus.PulseRamp.Rising, 0)
+                self.gen.setPulseRamp(unifus.PulseRamp.Falling, 0)
 
             # (optional) restore disabled channels
             self.gen.enableAllChannels()
