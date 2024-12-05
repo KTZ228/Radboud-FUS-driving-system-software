@@ -187,8 +187,8 @@ DS_TRAN_COMBOS = [
     '~'.join([IGT_DS[8], IS_TRANS[2]]), '~'.join([IGT_DS[8], IS_TRANS[3]])
                                                      ]
 
-config['Equipment']['Combinations'] = ''
-config['Equipment']['inactive_combinations'] = '\n'.join(DS_TRAN_COMBOS)
+config['Equipment']['Combinations'] = '\n'.join(DS_TRAN_COMBOS)
+config['Equipment']['inactive_combinations'] = ''
 
 #######################################################################################
 # Sonic Concepts - Driving systems
@@ -572,28 +572,28 @@ config['Equipment.Transducer.' + IS_TRANS[1]]['Steer information'] = str(os.path
 config['Equipment.Transducer.' + IS_TRANS[1]]['Active?'] = str(True)
 
 IS_15473_1001 = {}
-IS_15473_1001['p2a_a_coeff'] = 0.00011068
-IS_15473_1001['p2a_b_coeff'] = -0.057682
-IS_15473_1001['df2sf_a_coeff'] = 0.9858
-IS_15473_1001['df2sf_b_coeff'] = 7.0255
-IS_15473_1001['f2eqf1_foc_low_lim'] = 11.6
-IS_15473_1001['f2eqf1_foc_upper_lim'] = 22.97
-IS_15473_1001['f2eqf1_a0_coeff'] = 208.98
-IS_15473_1001['f2eqf1_a1_coeff'] = -84.463
-IS_15473_1001['f2eqf1_a2_coeff'] = 14.397
-IS_15473_1001['f2eqf1_a3_coeff'] = -1.3348
-IS_15473_1001['f2eqf1_a4_coeff'] = 0.072783
-IS_15473_1001['f2eqf1_a5_coeff'] = -0.002339
-IS_15473_1001['f2eqf1_a6_coeff'] = 4.1107e-05
-IS_15473_1001['f2eqf1_a7_coeff'] = -3.0533e-07
-IS_15473_1001['f2eqf2_foc_low_lim'] = 22.97
-IS_15473_1001['f2eqf2_foc_upper_lim'] = 94.62
-IS_15473_1001['f2eqf2_a0_coeff'] = 0.90957
-IS_15473_1001['f2eqf2_a1_coeff'] = -0.029049
-IS_15473_1001['f2eqf2_a2_coeff'] = 0.00095212
-IS_15473_1001['f2eqf2_a3_coeff'] = -1.0906e-05
-IS_15473_1001['f2eqf2_a4_coeff'] = 5.8419e-08
-IS_15473_1001['f2eqf2_a5_coeff'] = -1.1697e-10
+IS_15473_1001['p2a_a_coeff'] = 0.000108856063340
+IS_15473_1001['p2a_b_coeff'] = -0.040608603214349
+IS_15473_1001['df2sf_a_coeff'] = 1.001417337686330
+IS_15473_1001['df2sf_b_coeff'] = 6.501919735352103
+IS_15473_1001['f2eqf1_foc_low_lim'] = 11.41
+IS_15473_1001['f2eqf1_foc_upper_lim'] = 23.91
+IS_15473_1001['f2eqf1_a0_coeff'] = 155.456141425652
+IS_15473_1001['f2eqf1_a1_coeff'] = -62.4159468007929
+IS_15473_1001['f2eqf1_a2_coeff'] = 10.572862781395
+IS_15473_1001['f2eqf1_a3_coeff'] = -0.974118502758613
+IS_15473_1001['f2eqf1_a4_coeff'] = 0.0527778625069939
+IS_15473_1001['f2eqf1_a5_coeff'] = -0.00168495870404901
+IS_15473_1001['f2eqf1_a6_coeff'] = 2.94099609801237e-05
+IS_15473_1001['f2eqf1_a7_coeff'] = -2.1689610110201e-07
+IS_15473_1001['f2eqf2_foc_low_lim'] = 23.91
+IS_15473_1001['f2eqf2_foc_upper_lim'] = 92.51
+IS_15473_1001['f2eqf2_a0_coeff'] = 0.708228661808233
+IS_15473_1001['f2eqf2_a1_coeff'] = -0.0251942648277707
+IS_15473_1001['f2eqf2_a2_coeff'] = 0.000994917874925799
+IS_15473_1001['f2eqf2_a3_coeff'] = -1.46061580177157e-05
+IS_15473_1001['f2eqf2_a4_coeff'] = 1.0470213175301e-07
+IS_15473_1001['f2eqf2_a5_coeff'] = -2.94628257086522e-10
 IS_15473_1001['f2eqf2_a6_coeff'] = 0
 IS_15473_1001['f2eqf2_a7_coeff'] = 0
 
