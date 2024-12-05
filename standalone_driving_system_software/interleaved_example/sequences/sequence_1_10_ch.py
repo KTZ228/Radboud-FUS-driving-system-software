@@ -32,7 +32,7 @@ def create_sequence_collection():
     # equipment
     # to check available driving systems: print(driving_system.get_ds_serials())
     # choose one driving system from that list as input
-    seq1.driving_sys = 'IGT-32-ch_2x10-ch'
+    seq1.driving_sys = 'IGT-32-ch_comb_2x10-ch'
     use_two_transducers = True  # is true if you are using two transducers simulateneously or interleaved
 
     # to check available transducers: print(transducer.get_tran_serials())
@@ -87,6 +87,7 @@ def create_sequence_collection():
     # you can use the TUS Calculator to visualize the timing parameters:
     # https://www.socsci.ru.nl/fusinitiative/tuscalculator/
 
+    # Compensate for delay measured with PicoScope
     interleave_diff = 13.9  # [ms]
 
     # ## pulse ## #

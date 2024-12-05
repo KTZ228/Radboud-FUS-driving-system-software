@@ -13,6 +13,7 @@ Author: ir. Margely Cornelissen, FUS Initiative, Radboud University
 # initialize logging.
 ##############################################################################
 
+
 from fus_driving_systems.config.logging_config import initialize_logger
 
 log_dir = "C:\\Temp"
@@ -58,7 +59,7 @@ total_duration_s = 80  # [s]
 
 from fus_driving_systems.igt import igt_ds
 
-igt_driving_sys = igt_ds.IGT()
+igt_driving_sys = igt_ds.IGT(log_dir)
 
 try:
     igt_driving_sys.connect(seq1.driving_sys.connect_info, log_dir, filename)
