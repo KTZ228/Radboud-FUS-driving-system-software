@@ -32,11 +32,10 @@ https://github.com/Donders-Institute/Radboud-FUS-measurement-kit
 
 # Basic packages
 import os
-import sys
-
 # Miscellaneous packages
 from datetime import datetime
 import logging
+from pathlib import Path
 
 # Own packages
 from fus_driving_systems.config.config import config_info as config
@@ -46,6 +45,9 @@ logger = None
 
 def initialize_logger(log_dir, filename):
     global logger
+
+    # create directory if it doesn't exist
+    Path(log_dir).mkdir(parents=True, exist_ok=True)
 
     # reset logging
     logger = logging.getLogger(config['General']['Logger name'])

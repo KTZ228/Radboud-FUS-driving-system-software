@@ -31,10 +31,10 @@ https://github.com/Donders-Institute/Radboud-FUS-measurement-kit
 """
 
 # Basic packages
+import sys
 
 # Miscellaneous packages
 import math
-import sys
 
 # Own packages
 from fus_driving_systems import driving_system as ds
@@ -67,6 +67,7 @@ class Sequence():
         _press (float): [IGT] maximum pressure in free water [MPa].
         _volt (float): [IGT] voltage [V].
         _ampl (float): [IGT] amplitude [%].
+        _chosen_focus (str): The chosen focus parameter (wrt exit plane or mid bowl).
         _focus_wrt_exit_plane (float): Focal depth of the sequence w.r.t. exit plane respresenting
                                        the FWHM middle [mm].
         _focus_wrt_mid_bowl (float): Focal depth of the sequence w.r.t. transducer bowl middle
@@ -188,11 +189,12 @@ class Sequence():
         self._n_triggers = 0
 
         # set a temporary focus wrt mid bowl and operating frequency to set a default transducer
-        self._chosen_power = ''
-        self._global_power = -1  # SC: global power [W]
-        self._press = -1  # IGT: maximum pressure in free water [MPa]
-        self._volt = -1  # IGT: voltage [V]
-        self._ampl = -1  # IGT: amplitude [%]
+        self._chosen_power = None
+
+        self._global_power = 0  # SC: global power [W]
+        self._press = 0  # IGT: maximum pressure in free water [MPa]
+        self._volt = 0  # IGT: voltage [V]
+        self._ampl = 0  # IGT: amplitude [%]
         self._eq_factor = 0  # IGT: normalized pressure
         self._focus_wrt_mid_bowl = 40  # [mm]
         self._oper_freq = 0  # [kHz]
@@ -204,6 +206,7 @@ class Sequence():
         def_tran_serial = tran.get_tran_serials()[0]
         self.transducer = def_tran_serial
 
+        self._chosen_focus = self.get_focus_options()[0]
         self._focus_wrt_exit_plane = self._focus_wrt_mid_bowl - self._transducer.exit_plane_dist
 
         # If applicable, retrieve conversion parameters
@@ -377,7 +380,10 @@ class Sequence():
                            differentiate and send multiple sequences to the IGT system.
         """
 
-        self._seq_num = seq_num
+        is_validated = validate_value(seq_num, 'Sequence number (seq_num)',
+                                      True, True, False, False)
+        if is_validated:
+            self._seq_num = seq_num
 
     @property
     def driving_sys(self):
@@ -428,7 +434,11 @@ class Sequence():
         Args:
             value (bool): The boolean indicating if the driving system is waiting for a trigger.
         """
-        self._wait_for_trigger = wait_for_trigger
+
+        is_validated = validate_value(wait_for_trigger, 'Wait for trigger (wait_for_trigger)',
+                                      False, False, False, True)
+        if is_validated:
+            self._wait_for_trigger = wait_for_trigger
 
     def get_trigger_options(self):
         """
@@ -458,7 +468,12 @@ class Sequence():
         Args:
             value (str):  The chosen trigger option.
         """
-        self._trigger_option = trigger_option
+
+        if trigger_option not in self.get_trigger_options():
+            logger.error(f'{trigger_option} is not an available option.')
+            sys.exit()
+        else:
+            self._trigger_option = trigger_option
 
     @property
     def n_triggers(self):
@@ -478,7 +493,11 @@ class Sequence():
         Args:
             value (int): The number of times a trigger will be sent.
         """
-        self._n_triggers = n_triggers
+
+        is_validated = validate_value(n_triggers, 'Number of anticipated triggers (n_triggers)',
+                                      True, True, True, False)
+        if is_validated:
+            self._n_triggers = n_triggers
 
     @property
     def transducer(self):
@@ -505,7 +524,6 @@ class Sequence():
         # set new default operating frequency and focus based on chosen transducer
         self._oper_freq = int(self._transducer.fund_freq)
         self._focus_wrt_exit_plane = self._transducer.min_foc  # [mm]
-        self._focus_wrt_mid_bowl = self._focus_wrt_exit_plane + self._transducer.exit_plane_dist
 
         # Check if driving system is initialized
         if hasattr(self, '_driving_sys'):
@@ -515,6 +533,9 @@ class Sequence():
             if self._ds_tran_combo in self._equip_combos:
                 # New equipment selected, update conversion parameters
                 self._update_conv_param()
+                self._focus_wrt_mid_bowl = self.DF2SF_a * self._focus_wrt_exit_plane + self.DF2SF_b
+            else:
+                self._focus_wrt_mid_bowl = self._focus_wrt_exit_plane + self._transducer.exit_plane_dist
 
     @property
     def oper_freq(self):
@@ -536,7 +557,20 @@ class Sequence():
             oper_freq (int): Operating frequency [kHz].
         """
 
-        self._oper_freq = int(oper_freq)
+        is_validated = validate_value(oper_freq, 'Operating frequency [kHz] (oper_freq)',
+                                      True, True, True, False)
+        if is_validated:
+            self._oper_freq = int(oper_freq)
+
+    def get_power_options(self):
+        """
+        Returns a list of available power options.
+
+        Returns:
+            List[str]: Available power options.
+        """
+
+        return config['General']['Power options'].split('\n')
 
     @property
     def chosen_power(self):
@@ -558,7 +592,11 @@ class Sequence():
             chosen_power (str): The chosen power parameter.
         """
 
-        self._chosen_power = chosen_power
+        if chosen_power not in self.get_power_options():
+            logger.error(f'{chosen_power} is not an available option.')
+            sys.exit()
+        else:
+            self._chosen_power = chosen_power
 
     @property
     def global_power(self):
@@ -580,21 +618,24 @@ class Sequence():
             global_power (float): The global power [W] for SC.
         """
 
+        # set other parameters determine the intensity to None
+        self._ampl = 0
+        self._global_power = 0
+
         if self._driving_sys.manufact == config['Equipment.Manufacturer.SC']['Name']:
-            self._global_power = global_power
-            self._chosen_power = config['General']['Power option.glob_pow']
+            is_validated = validate_value(global_power, 'Global power [W] (global_power)',
+                                          True, True, False, False)
+            if is_validated:
+                self._global_power = global_power
+                self._chosen_power = config['General']['Power option.glob_pow']
 
-            # set other parameters determine the intensity to None
-            self.ampl = -1
         else:
-            # Chosen system is not SC, so check if another value is set.
-            if global_power == -1 and self._ampl > -1:
-                self._global_power = -1
-
-            else:
-                logger.warning('Global power parameter is not available for ' +
-                               'chosen driving system. Use ampl [%], press ' +
-                               '[MPa] or volt [V] instead.')
+            # Chosen system is not SC.
+            if global_power > 0:
+                logger.error('Global power parameter is not available for ' +
+                             'chosen driving system. Use ampl [%], press ' +
+                             '[MPa] or volt [V] instead.')
+                sys.exit()
 
     @property
     def press(self):
@@ -616,26 +657,39 @@ class Sequence():
             press (float): The maximum pressure in free water [MPa] for IGT.
         """
 
+        # set other parameters determine the intensity to None
+        self._global_power = 0
+        self._press = 0
+
         # Check if pressure compensation is available for chosen equipment
         if self._ds_tran_combo in self._equip_combos:
-            self._press = press
-            self._chosen_power = config['General']['Power option.press']
+            is_validated = validate_value(press, 'Maximum pressure in free water [MPa] (press)',
+                                          True, True, False, False)
+            if is_validated:
+                max_press = float(config['General']['Maximum pressure allowed in free water [MPa]'])
+                if press > max_press:
+                    logger.error(f'The set maximum pressure in free water of {press} [MPa] is ' +
+                                 f'crossing the allowed limit of {max_press} [MPa]. Please change' +
+                                 ' your value.')
+                    sys.exit()
 
-            # Convert required voltage to amplitude
-            self._calc_ampl()
+                self._press = press
 
-            # Calculate required voltage
-            self._calc_volt()
+                self._chosen_power = config['General']['Power option.press']
 
-            logger.info(f'New maximum pressure in free water value of {self._press:.2f} [MPa] ' +
-                        f'results in a voltage of {self._volt:.2f} [V] and an amplitude ' +
-                        f'of {self._ampl:.2f} [%].')
+                # Convert required amplitude
+                self._calc_ampl()
 
-            # set other parameters determine the intensity to None
-            self.global_power = -1
+                # Calculate voltage for logging
+                self._calc_volt()
+
+                logger.info(f'New maximum pressure in free water value of {self._press:.2f} [MPa]' +
+                            f' results in a voltage of {self._volt:.2f} [V] and an amplitude ' +
+                            f'of {self._ampl:.2f} [%].')
         else:
-            logger.warning('No pressure compensation parameters available in the configuration' +
-                           ' file for chosen equipment combination. Enter amplitude [%].')
+            logger.error('No pressure compensation parameters available in the configuration' +
+                         ' file for chosen equipment combination. Enter amplitude [%].')
+            sys.exit()
 
     @property
     def volt(self):
@@ -656,27 +710,33 @@ class Sequence():
         Parameters:
             volt (float): The voltage [V] for IGT.
         """
+
+        # set other parameters determine the intensity to None
+        self._global_power = 0
+        self._volt = 0
+
         # Check if pressure compensation is available for chosen equipment
         if self._ds_tran_combo in self._equip_combos:
-            self._volt = volt
-            self._chosen_power = config['General']['Power option.volt']
+            is_validated = validate_value(volt, 'Voltage [V] (volt)',
+                                          True, True, False, False)
+            if is_validated:
+                self._volt = volt
 
-            # Convert required to amplitude
-            self._calc_ampl_using_volt()
+                self._chosen_power = config['General']['Power option.volt']
 
-            # Calculate maximum pressure in free water for logging purposes
-            self._calc_press()
+                # Convert required to amplitude
+                self._calc_ampl_using_volt()
 
-            logger.info(f'New voltage value of {self._volt:.2f} [V] results in a maximum' +
-                        f' pressure in free water of {self._press:.2f} [MPa] and an amplitude ' +
-                        f'of {self._ampl:.2f} [%].')
+                # Calculate maximum pressure in free water for logging purposes
+                self._calc_press()
 
-            # set other parameters determine the intensity to -1
-            self.global_power = -1
-
+                logger.info(f'New voltage value of {self._volt:.2f} [V] results in a maximum' +
+                            f' pressure in free water of {self._press:.2f} [MPa] and an amplitude' +
+                            f' of {self._ampl:.2f} [%].')
         else:
-            logger.warning('No pressure compensation parameters available in the configuration' +
-                           ' file for chosen equipment combination. Enter amplitude [%].')
+            logger.error('No pressure compensation parameters available in the configuration' +
+                         ' file for chosen equipment combination. Enter amplitude [%].')
+            sys.exit()
 
     @property
     def ampl(self):
@@ -697,11 +757,20 @@ class Sequence():
         Parameters:
             ampl (float): The amplitude [%] for IGT.
         """
+
+        # set other parameters determine the intensity to None
+        self._global_power = 0
+        self._ampl = 0
+
         if self._driving_sys.manufact == config['Equipment.Manufacturer.IGT']['Name']:
             self._chosen_power = config['General']['Power option.ampl']
-            if self._ds_tran_combo in self._equip_combos:
+
+            is_validated = validate_value(ampl, 'Amplitude [%] (ampl)',
+                                          True, True, False, False)
+            if is_validated:
                 self._ampl = ampl
 
+            if self._ds_tran_combo in self._equip_combos:
                 # Convert amplitude to voltage for logging
                 self._calc_volt()
 
@@ -712,26 +781,54 @@ class Sequence():
                             f' pressure in free water of {self._press:.2f} [MPa] and a voltage ' +
                             f'of {self._volt:.2f} [V].')
 
-                # set other parameters determine the intensity to None
-                self.global_power = -1
             else:
                 # Equipment is not part a combination, so only set amplitude
-                self._ampl = ampl
                 logger.info('Chosen transducer - driving system combination ' +
                             'is not apart of configured combinations. ' +
-                            'Pressure and voltage cannot be calculated, so ' +
-                            ' only amplitude is accepted as input.')
+                            'Pressure and voltage cannot be calculated.')
         else:
-            # Chosen system is not IGT, so check if another value is set.
-            if ampl == -1 and self._global_power > -1:
-                self._ampl = -1
-                self._volt = -1
-                self._press = -1
+            # Chosen system is not IGT.
+            if ampl > 0:
+                logger.error('Amplitude parameter is not available for ' +
+                             'chosen driving system. Use global_power [mW]' +
+                             ' instead.')
+                sys.exit()
 
-            else:
-                logger.warning('Amplitude parameter is not available for ' +
-                               'chosen driving system. Use global_power [mW]' +
-                               ' instead.')
+    def get_focus_options(self):
+        """
+        Returns a list of available focus options.
+
+        Returns:
+            List[str]: Available focus options.
+        """
+
+        return config['General']['Focus options'].split('\n')
+
+    @property
+    def chosen_focus(self):
+        """
+        Getter method for the chosen_focus.
+
+        Returns:
+            str: The chosen focus parameter.
+        """
+
+        return self._chosen_focus
+
+    @chosen_focus.setter
+    def chosen_focus(self, chosen_focus):
+        """
+        Setter method for the chosen_focus.
+
+        Parameters:
+            chosen_focus (str): The chosen focus parameter.
+        """
+
+        if chosen_focus not in self.get_focus_options():
+            logger.error(f'{chosen_focus} is not an available option.')
+            sys.exit()
+        else:
+            self._chosen_focus = chosen_focus
 
     @property
     def focus_wrt_exit_plane(self):
@@ -755,11 +852,32 @@ class Sequence():
             FWHM.
         """
 
-        self._focus_wrt_exit_plane = focus
-        self._focus_wrt_mid_bowl = self.DF2SF_a * focus + self.DF2SF_b
+        is_validated = validate_value(focus, 'Focus wrt exit plane [mm] (focus_wrt_exit_plane)',
+                                      True, True, False, False)
 
-        logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +
-                    f'Focus wrt bowl middle [m]: {self._focus_wrt_mid_bowl}')
+        if is_validated:
+            if self._ds_tran_combo not in self._equip_combos:
+                # Check if focus is within range if compensation equations are not applicable
+                if focus < self._transducer.min_foc or focus > self._transducer.max_foc:
+                    logger.error(f'Focus wrt exit plane of {focus} [mm] is not within the set ' +
+                                 f'focus range of {self._transducer.min_foc} and ' +
+                                 f'{self._transducer.max_foc} [mm] of transducer ' +
+                                 f'{self._transducer.name}.')
+                    sys.exit()
+
+                logger.warning('Compensation equations are not available or applicable. ' +
+                               'Calculate focus wrt mid bowl based on exit plane distance of ' +
+                               f'{self._transducer.exit_plane_dist} [mm].')
+                self._focus_wrt_mid_bowl = focus + self._transducer.exit_plane_dist
+
+            else:
+                self._focus_wrt_mid_bowl = self.DF2SF_a * focus + self.DF2SF_b
+
+            self._chosen_focus = config['General']['Focus option.exit']
+            self._focus_wrt_exit_plane = focus
+
+            logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +
+                        f'Focus wrt bowl middle [mm]: {self._focus_wrt_mid_bowl}')
 
         # Check if pressure compensation is available for chosen equipment
         if self._ds_tran_combo in self._equip_combos:
@@ -772,10 +890,11 @@ class Sequence():
             # Update voltage accordingly
             self._calc_volt()
 
-            logger.info(f"New focus wrt exit plane of {self._focus_wrt_exit_plane:.2f} [mm] results" +
-                        f" in an equalization factor of {self._eq_factor:.2f} recalcultating the " +
-                        f"maximum pressure in free water as {self._press:.2f} [MPa], the voltage " +
-                        f"as {self._volt:.2f} [V], and the amplitude as {self._ampl:.1f} [%].")
+            logger.info(f"New focus wrt exit plane of {self._focus_wrt_exit_plane:.2f} [mm] " +
+                        f" results in an equalization factor of {self._eq_factor:.2f} " +
+                        f"recalcultating the maximum pressure in free water as {self._press:.2f} " +
+                        f"[MPa], the voltage as {self._volt:.2f} [V], and the amplitude as " +
+                        f"{self._ampl:.1f} [%].")
 
     @property
     def focus_wrt_mid_bowl(self):
@@ -801,11 +920,32 @@ class Sequence():
             middle of the FWHM.
         """
 
-        self._focus_wrt_mid_bowl = focus
-        self._focus_wrt_exit_plane = (focus - self.DF2SF_b) / self.DF2SF_a
+        is_validated = validate_value(focus, 'Focus wrt mid bowl [mm] (focus_wrt_mid_bowl)',
+                                      True, True, False, False)
 
-        logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +
-                    f'Focus wrt bowl middle [m]: {self._focus_wrt_mid_bowl}')
+        if is_validated:
+            if self._ds_tran_combo in self._equip_combos and self.DF2SF_a != 0:
+                self._focus_wrt_exit_plane = (focus - self.DF2SF_b) / self.DF2SF_a
+            else:
+                logger.warning('Compensation equations are not available or applicable, or ' +
+                               'a-coefficient of focus equation (DF2SF_a) is zero. Calculate ' +
+                               'focus wrt exit plane based on exit plane distance of ' +
+                               f'{self._transducer.exit_plane_dist} [mm].')
+                self._focus_wrt_exit_plane = focus - self._transducer.exit_plane_dist
+
+                # Check if focus is within range if compensation equations are not applicable
+                if self._focus_wrt_exit_plane < self._transducer.min_foc or self._focus_wrt_exit_plane > self._transducer.max_foc:
+                    logger.error(f'Focus wrt exit plane of {focus} [mm] is not within the set ' +
+                                 f'focus range of {self._transducer.min_foc} and ' +
+                                 f'{self._transducer.max_foc} [mm] of transducer ' +
+                                 f'{self._transducer.name}.')
+                    sys.exit()
+
+            self._chosen_focus = config['General']['Focus option.bowl']
+            self._focus_wrt_mid_bowl = focus
+
+            logger.info(f'Focus wrt exit plane [mm]: {self._focus_wrt_exit_plane} \n ' +
+                        f'Focus wrt bowl middle [mm]: {self._focus_wrt_mid_bowl}')
 
         # Check if pressure compensation is available for chosen equipment
         if self._ds_tran_combo in self._equip_combos:
@@ -1202,7 +1342,10 @@ class Sequence():
             pulse_dur (float): Pulse duration [ms].
         """
 
-        self._timing_param['pulse_dur'] = pulse_dur
+        is_validated = validate_value(pulse_dur, 'Pulse duration [ms] (pulse_dur)',
+                                      True, True, True, False)
+        if is_validated:
+            self._timing_param['pulse_dur'] = pulse_dur
 
     @property
     def pulse_rep_int(self):
@@ -1224,7 +1367,11 @@ class Sequence():
             pulse_rep_int (float): Pulse repetition interval [ms].
         """
 
-        self._timing_param['pulse_rep_int'] = pulse_rep_int
+        is_validated = validate_value(pulse_rep_int,
+                                      'Pulse repetition interval [ms] (pulse_rep_int)',
+                                      True, True, True, False)
+        if is_validated:
+            self._timing_param['pulse_rep_int'] = pulse_rep_int
 
     def get_ramp_shapes(self):
         """
@@ -1256,7 +1403,11 @@ class Sequence():
             pulse_ramp_shape (str): Selected pulse ramp shape.
         """
 
-        self._timing_param['pulse_ramp_shape'] = pulse_ramp_shape
+        if pulse_ramp_shape not in self.get_ramp_shapes():
+            logger.error(f'{pulse_ramp_shape} is not an available option.')
+            sys.exit()
+        else:
+            self._timing_param['pulse_ramp_shape'] = pulse_ramp_shape
 
     @property
     def pulse_ramp_dur(self):
@@ -1278,7 +1429,11 @@ class Sequence():
             pulse_ramp_dur (float): Pulse ramp duration [ms].
         """
 
-        self._timing_param['pulse_ramp_dur'] = pulse_ramp_dur
+        is_validated = validate_value(pulse_ramp_dur,
+                                      'Pulse ramp duration [ms] (pulse_ramp_dur)',
+                                      True, True, False, False)
+        if is_validated:
+            self._timing_param['pulse_ramp_dur'] = pulse_ramp_dur
 
     @property
     def pulse_train_dur(self):
@@ -1300,7 +1455,11 @@ class Sequence():
             pulse_train_dur (float): Pulse train duration [ms].
         """
 
-        self._timing_param['pulse_train_dur'] = pulse_train_dur
+        is_validated = validate_value(pulse_train_dur,
+                                      'Pulse train duration [ms] (pulse_train_dur)',
+                                      True, True, True, False)
+        if is_validated:
+            self._timing_param['pulse_train_dur'] = pulse_train_dur
 
     @property
     def pulse_train_rep_int(self):
@@ -1322,7 +1481,11 @@ class Sequence():
             pulse_train_rep_int (float): Pulse train repetition interval [ms].
         """
 
-        self._timing_param['pulse_train_rep_int'] = pulse_train_rep_int
+        is_validated = validate_value(pulse_train_rep_int,
+                                      'Pulse train repetition interval [ms] (pulse_train_rep_int)',
+                                      True, True, True, False)
+        if is_validated:
+            self._timing_param['pulse_train_rep_int'] = pulse_train_rep_int
 
     @property
     def pulse_train_rep_dur(self):
@@ -1344,8 +1507,12 @@ class Sequence():
             pulse_train_rep_dur (float): Pulse train repetition duration [s].
         """
 
-        # convert pulse train repetition duration in seconds to milliseconds
-        self._timing_param['pulse_train_rep_dur'] = pulse_train_rep_dur * 1e3
+        is_validated = validate_value(pulse_train_rep_dur,
+                                      'Pulse train repetiton duration [s] (pulse_train_rep_dur)',
+                                      True, True, True, False)
+        if is_validated:
+            # convert pulse train repetition duration in seconds to milliseconds
+            self._timing_param['pulse_train_rep_dur'] = pulse_train_rep_dur * 1e3
 
     def _update_conv_param(self):
         """
@@ -1422,7 +1589,7 @@ class Sequence():
                                self.F2EQF2_a7*math.pow(self._focus_wrt_exit_plane, 7))
         else:
             logger.error(f'Focus wrt exit plane of {self._focus_wrt_exit_plane} mm is not within ' +
-                         'the limits of {self.F2EQF1_low_lim} and {self.F2EQF2_up_lim} [mm].')
+                         f'the limits of {self.F2EQF1_low_lim} and {self.F2EQF2_up_lim} [mm].')
             sys.exit()
 
     def _calc_volt(self):
@@ -1432,7 +1599,7 @@ class Sequence():
         """
 
         # Prevent division by zero
-        if self._ampl == 0:
+        if self.V2A_a == 0:
             self._volt = 0
         else:
             self._volt = (self._ampl - self.V2A_b) / self.V2A_a
@@ -1473,4 +1640,50 @@ class Sequence():
         """
 
         press_pa = (self._ampl - self.P2A_b) / (self.P2A_a * self._eq_factor)
-        self._press = press_pa * 1e-6  # convert to MPa
+        press_mpa = press_pa * 1e-6  # convert to MPa
+
+        max_press = float(config['General']['Maximum pressure allowed in free water [MPa]'])
+        if press_mpa > max_press:
+            logger.error(f'The set maximum pressure in free water of {press_mpa} [MPa] is ' +
+                         f'crossing the allowed limit of {max_press} [MPa]. Please change' +
+                         ' your value.')
+            sys.exit()
+
+        self._press = press_mpa  # convert to MPa
+
+
+def validate_value(value, input_param, check_num, check_pos, check_nonzero, check_bool):
+    """
+    Validates `value` based on specified checks, logs errors if conditions are not met, and exits
+    if validation fails.
+
+    Parameters:
+        value (any): The value to check.
+        input_param (str): Name of the parameter, used in error messages.
+        check_num (bool): Checks if value is a number.
+        check_pos (bool): Ensures value is non-negative.
+        check_nonzero (bool): Ensures value is not zero.
+        check_bool (bool): Checks if value is a boolean.
+
+    Returns:
+        bool: True if all checks pass; otherwise, logs errors and exits.
+    """
+
+    val_messages = []
+
+    if check_nonzero and value == 0:
+        val_messages.append(f'{input_param} is not allowed to be zero.')
+    if check_num and not isinstance(value, (int, float)):
+        val_messages.append(f'{input_param} should be a number.')
+    if check_pos and value < 0:
+        val_messages.append(f'{input_param} is not allowed to be negative.')
+
+    if check_bool and not isinstance(value, bool):
+        val_messages.append(f'{input_param} should be a boolean.')
+
+    if val_messages:
+        for message in val_messages:
+            logger.error(message)
+        sys.exit()
+
+    return True

@@ -200,7 +200,7 @@ class Transducer(object):
 
         phases_str = ', '.join([format(x, '.2f') for x in phases])
         natural_foc = set_focus_mm + point_mm[2]
-        logger.info(f'Computed phases for set focus of {set_focus_mm} and aim w.r.t. natural ' +
-                    f'focus of {natural_foc}: {phases_str}')
+        logger.info(f'Computed phases for focus wrt mid bowl of {set_focus_mm} and aim w.r.t. ' +
+                    f'natural focus of {natural_foc}: {phases_str}')
 
         return phases

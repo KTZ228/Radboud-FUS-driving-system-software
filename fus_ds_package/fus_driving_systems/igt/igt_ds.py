@@ -69,13 +69,16 @@ class IGT(ds.ControlDrivingSystem):
         total_sequence_duration_ms (float): Total duration of the sequence in milliseconds.
     """
 
-    def __init__(self):
+    def __init__(self, log_dir='C:\\Temp'):
         """
         Initializes the IGT object.
         """
+
         super().__init__()
 
-        with open("C:/Temp/faulthandler_output.log", "w") as f:
+        fault_handler_path = os.path.join(log_dir, 'faulthandler_output.log')
+
+        with open(fault_handler_path, "w") as f:
             faulthandler.enable(file=f)
 
         self.sent_seq_nums = []
@@ -206,7 +209,8 @@ class IGT(ds.ControlDrivingSystem):
             List: List of error messages.
         """
 
-        error_messages = []
+        error_messages = super().validate_sequence(sequence)
+
         if sequence.pulse_dur < 0.001:  # [ms]:
             error_messages.append('Pulse duration is not allowed to be smaller than 1 us.')
 
@@ -221,6 +225,12 @@ class IGT(ds.ControlDrivingSystem):
                                       '70 us between ramping up and down')
         if sequence.ampl is None:
             error_messages.append("Intensity parameter may be set incorrectly. Amplitude is None.")
+
+        n_pulses = sequence.pulse_train_dur/sequence.pulse_rep_int
+        max_n_pulses = 64
+        if n_pulses > max_n_pulses:
+            error_messages.append("The maximum amount of pulses within a pulse train is " +
+                                  f"{max_n_pulses}. Currently, the amount is {n_pulses}.")
 
         return error_messages
 
@@ -270,6 +280,10 @@ class IGT(ds.ControlDrivingSystem):
             # Apply ramping
             if seq1.pulse_ramp_shape != config['General']['Ramp shape.rect']:
                 self._apply_ramping(seq1)
+            else:
+                self.gen.setPulseModulation([], 0, [], 0)  # disable any modulation
+                self.gen.setPulseRamp(unifus.PulseRamp.Rising, 0)
+                self.gen.setPulseRamp(unifus.PulseRamp.Falling, 0)
 
             # (optional) restore disabled channels
             self.gen.enableAllChannels()
@@ -330,7 +344,8 @@ class IGT(ds.ControlDrivingSystem):
                 logger.info(f'Phases are overridden by phases set at dephasing_degree: {seq.dephasing_degree}')
                 phases = phases + seq.dephasing_degree
             else:
-                computed_phases = self._set_phases(pulse, seq.focus, seq.transducer.steer_info,
+                computed_phases = self._set_phases(pulse, seq.focus_wrt_mid_bowl,
+                                                   seq.transducer.steer_info,
                                                    seq.transducer.natural_foc,
                                                    seq.dephasing_degree)
                 phases = phases + computed_phases
