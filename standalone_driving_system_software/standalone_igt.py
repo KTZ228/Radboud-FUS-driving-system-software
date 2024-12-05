@@ -62,6 +62,9 @@ seq1.transducer = 'IS_PCD15287_01001'
 
 # set general parameters
 seq1.oper_freq = 300  # [kHz], operating frequency
+
+# NOTE: Due to compensation equations, the focus has to be set first when using amplitude or
+# voltage as power input.
 seq1.focus_wrt_exit_plane = 40  # [mm], focal depth w.r.t. the exit plane and FWHM middle
 
 # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
@@ -98,6 +101,9 @@ if use_two_transducers:
 
     # set general parameters
     seq2.oper_freq = 300  # [kHz], operating frequency
+
+    # NOTE: Due to compensation equations, the focus has to be set first when using amplitude or
+    # voltage as power input.
     seq2.focus_wrt_exit_plane = 80  # [mm], focal depth w.r.t. the exit plane and FWHM middle
 
     # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing

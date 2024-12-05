@@ -41,7 +41,10 @@ def create_sequence_collection():
 
     # set general parameters
     seq3.oper_freq = 300  # [kHz], operating frequency
-    seq3.focus = 40  # [mm], focal depth
+
+    # NOTE: Due to compensation equations, the focus has to be set first when using amplitude or
+    # voltage as power input.
+    seq3.focus_wrt_exit_plane = 40  # [mm], focal depth w.r.t. the exit plane and FWHM middle
 
     # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
     # One value (>0) is the degree of dephasing, for example [90] with 4 elements: 1 elem: 0 dephasing,
@@ -68,7 +71,10 @@ def create_sequence_collection():
 
         # set general parameters
         seq4.oper_freq = 300  # [kHz], operating frequency
-        seq4.focus = 80  # [mm], focal depth
+
+        # NOTE: Due to compensation equations, the focus has to be set first when using amplitude or
+        # voltage as power input.
+        seq4.focus_wrt_exit_plane = 80  # [mm], focal depth w.r.t. the exit plane and FWHM middle
 
         # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
         # One value (>0) is the degree of dephasing, for example [90] with 4 elements: 1 elem: 0
