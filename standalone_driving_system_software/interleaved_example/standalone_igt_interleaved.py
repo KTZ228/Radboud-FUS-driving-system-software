@@ -31,13 +31,13 @@ logger = initialize_logger(log_dir, filename)
 ##############################################################################
 from sequences import sequence_1_10_ch
 
-seq1, seq2 = sequence_1_10_ch.create_sequence_collection()
+seq1, seq2 = sequence_1_10_ch.create_sequence_collection(logger)
 ##############################################################################
 # second sequence collection
 ##############################################################################
 from sequences import sequence_17_26_ch
 
-seq3, seq4 = sequence_17_26_ch.create_sequence_collection()
+seq3, seq4 = sequence_17_26_ch.create_sequence_collection(logger)
 
 total_duration_s = 80  # [s]
 
