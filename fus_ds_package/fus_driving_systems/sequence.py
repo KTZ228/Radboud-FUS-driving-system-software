@@ -189,7 +189,7 @@ class Sequence():
         self._n_triggers = 0
 
         # set a temporary focus wrt mid bowl and operating frequency to set a default transducer
-        self._chosen_power = self.get_power_options()[0]
+        self._chosen_power = None
 
         self._global_power = 0  # SC: global power [W]
         self._press = 0  # IGT: maximum pressure in free water [MPa]

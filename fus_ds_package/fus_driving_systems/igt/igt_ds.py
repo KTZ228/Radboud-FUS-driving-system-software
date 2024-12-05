@@ -75,7 +75,7 @@ class IGT(ds.ControlDrivingSystem):
         """
 
         super().__init__()
-        
+
         fault_handler_path = os.path.join(log_dir, 'faulthandler_output.log')
 
         with open(fault_handler_path, "w") as f:
