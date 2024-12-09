@@ -69,13 +69,16 @@ class IGT(ds.ControlDrivingSystem):
         total_sequence_duration_ms (float): Total duration of the sequence in milliseconds.
     """
 
-    def __init__(self):
+    def __init__(self, log_dir='C:\\Temp'):
         """
         Initializes the IGT object.
         """
+
         super().__init__()
 
-        with open("C:/Temp/faulthandler_output.log", "w") as f:
+        fault_handler_path = os.path.join(log_dir, 'faulthandler_output.log')
+
+        with open(fault_handler_path, "w") as f:
             faulthandler.enable(file=f)
 
         self.sent_seq_nums = []
@@ -206,7 +209,8 @@ class IGT(ds.ControlDrivingSystem):
             List: List of error messages.
         """
 
-        error_messages = []
+        error_messages = super().validate_sequence(sequence)
+
         if sequence.pulse_dur < 0.001:  # [ms]:
             error_messages.append('Pulse duration is not allowed to be smaller than 1 us.')
 
@@ -221,6 +225,12 @@ class IGT(ds.ControlDrivingSystem):
                                       '70 us between ramping up and down')
         if sequence.ampl is None:
             error_messages.append("Intensity parameter may be set incorrectly. Amplitude is None.")
+
+        n_pulses = sequence.pulse_train_dur/sequence.pulse_rep_int
+        max_n_pulses = 64
+        if n_pulses > max_n_pulses:
+            error_messages.append("The maximum amount of pulses within a pulse train is " +
+                                  f"{max_n_pulses}. Currently, the amount is {n_pulses}.")
 
         return error_messages
 
@@ -270,6 +280,10 @@ class IGT(ds.ControlDrivingSystem):
             # Apply ramping
             if seq1.pulse_ramp_shape != config['General']['Ramp shape.rect']:
                 self._apply_ramping(seq1)
+            else:
+                self.gen.setPulseModulation([], 0, [], 0)  # disable any modulation
+                self.gen.setPulseRamp(unifus.PulseRamp.Rising, 0)
+                self.gen.setPulseRamp(unifus.PulseRamp.Falling, 0)
 
             # (optional) restore disabled channels
             self.gen.enableAllChannels()
@@ -327,10 +341,11 @@ class IGT(ds.ControlDrivingSystem):
             pulse.setFrequencies(tran_freq)
             if seq.dephasing_degree is not None and (len(seq.dephasing_degree) ==
                                                      seq.transducer.elements):
-                logger.info(f'Phases are overridden by phases set at dephasing_degree :{seq.dephasing_degree}')
+                logger.info(f'Phases are overridden by phases set at dephasing_degree: {seq.dephasing_degree}')
                 phases = phases + seq.dephasing_degree
             else:
-                computed_phases = self._set_phases(pulse, seq.focus, seq.transducer.steer_info,
+                computed_phases = self._set_phases(pulse, seq.focus_wrt_mid_bowl,
+                                                   seq.transducer.steer_info,
                                                    seq.transducer.natural_foc,
                                                    seq.dephasing_degree)
                 phases = phases + computed_phases
@@ -523,10 +538,11 @@ class IGT(ds.ControlDrivingSystem):
 
         # set same phase offset for all channels (angle in [0,360] degrees)
         if sequence.dephasing_degree is not None and len(sequence.dephasing_degree) == sequence.transducer.elements:
-                logger.info(f'Phases are overridden by phases set at dephasing_degree :{sequence.dephasing_degree}')
-                pulse.setPhases(sequence.dephasing_degree)
+            logger.info(f'Phases are overridden by phases set at dephasing_degree :{sequence.dephasing_degree}')
+            pulse.setPhases(sequence.dephasing_degree)
         else:
-            phases = self._set_phases(pulse, sequence.focus, sequence.transducer.steer_info,
+            phases = self._set_phases(pulse, sequence.focus_wrt_mid_bowl,
+                                      sequence.transducer.steer_info,
                                       sequence.transducer.natural_foc, sequence.dephasing_degree)
             pulse.setPhases(phases)
 
@@ -558,7 +574,7 @@ class IGT(ds.ControlDrivingSystem):
 
         Parameters:
             pulse (unifus.Pulse): The defined pulse.
-            focus (float): The focus value [mm].
+            focus (float): The focus value wrt the middle of the transducer bowl [mm].
             steer_info (str): Path to the steer information.
             natural_foc (float): The natural focus value [mm] used to calculate target focus.
             dephasing_degree (list(float)): The degree used to dephase n elements in one cycle.
@@ -699,5 +715,15 @@ class IGT(ds.ControlDrivingSystem):
             ampl_ramp = np.zeros(n_points)
             for i in range(n_points):
                 ampl_ramp[i] = 0.5 * (1 + math.cos((2*math.pi/alpha) * (x[i] - alpha/2)))
+
+        elif sequence.pulse_ramp_shape == config['General']['Ramp shape.shota']:
+            # amount of points where ramping is applied
+            n_points = math.floor(sequence.pulse_ramp_dur/pulse_ramp_temp_res)
+            pulse_ramp_dur_s = sequence.pulse_ramp_dur / 1000
+            f = 1 / (2 * pulse_ramp_dur_s)   # [Hz]
+            x = np.linspace(0, pulse_ramp_dur_s, n_points)
+            ampl_ramp = np.zeros(n_points)
+            for i in range(n_points):
+                ampl_ramp[i] = 0.5 * (1 + math.sin(2*math.pi*f*x[i] - math.pi/2))
 
         return ampl_ramp

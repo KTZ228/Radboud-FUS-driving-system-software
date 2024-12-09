@@ -32,6 +32,8 @@ logger = initialize_logger(log_dir, filename)
 # import the 'fus_driving_systems - sequence' into your code
 ##############################################################################
 
+import sys
+
 from fus_driving_systems import driving_system, transducer
 from fus_driving_systems import sequence
 
@@ -60,7 +62,7 @@ seq1.transducer = 'IS_PCD15287_01001'
 
 # set general parameters
 seq1.oper_freq = 300  # [kHz], operating frequency
-seq1.focus = 40  # [mm], focal depth w.r.t. middle of the transducer bowl and FWHM
+seq1.focus_wrt_exit_plane = 40  # [mm], focal depth w.r.t. the exit plane and FWHM middle
 
 # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
 # One value (>0) is the degree of dephasing, for example [90] with 4 elements: 1 elem: 0 dephasing,
@@ -69,11 +71,10 @@ seq1.focus = 40  # [mm], focal depth w.r.t. middle of the transducer bowl and FW
 # based on the set focus.
 seq1.dephasing_degree = None  # [degrees]: None, [120] or [0, 135, 239, 90]
 
-# THE FEATURE IS NOT ENABLED YET! Use amplitude only for now
 # either set maximum pressure in free water [MPa], voltage [V] or amplitude [%]
-# seq1.press = 1  # [MPa], maximum pressure in free water
-# seq1.volt = 0  # [V], voltage per channel
-seq1.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
+seq1.press = 0.5  # [MPa], maximum pressure in free water
+# seq1.volt = 5  # [V], voltage per channel
+# seq1.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
 
 seq2 = None  # seq2 is None of a second transducer isn't used
 if use_two_transducers:
@@ -85,9 +86,19 @@ if use_two_transducers:
     # choose one transducer from that list as input
     seq2.transducer = 'IS_PCD15287_01002'
 
+    # Check if available channels is equal to the number of elements of the transducers combined
+    n_comb_elem = seq1.transducer.elements + seq2.transducer.elements
+    if seq1.driving_sys.available_ch != n_comb_elem:
+        logger.error(f'Number of available channels ({seq1.driving_sys.available_ch}) is not ' +
+                     f'equal to the number of elements of the transducers combined ({n_comb_elem}' +
+                     f'). Equipment configuration {seq1.driving_sys.name} - ' +
+                     f'{seq1.transducer.name} & {seq2.transducer.name} does ' +
+                     'not seem to be compatible or use_two_transducers is incorrectly True.')
+        sys.exit()
+
     # set general parameters
     seq2.oper_freq = 300  # [kHz], operating frequency
-    seq2.focus = 80  # [mm], focal depth w.r.t. middle of the transducer bowl and FWHM
+    seq2.focus_wrt_exit_plane = 80  # [mm], focal depth w.r.t. the exit plane and FWHM middle
 
     # Degree used to dephase every nth elemen based on chosen degree. None = no dephasing
     # One value (>0) is the degree of dephasing, for example [90] with 4 elements: 1 elem: 0
@@ -96,11 +107,18 @@ if use_two_transducers:
     # based on the set focus.
     seq2.dephasing_degree = None  # [degrees]: None, [120] or [0, 135, 239, 90]
 
-    # THE FEATURE IS NOT ENABLED YET! Use amplitude only for now
     # either set maximum pressure in free water [MPa], voltage [V] or amplitude [%]
-    # seq2.press = 1  # [MPa], maximum pressure in free water
+    seq2.press = 0.7  # [MPa], maximum pressure in free water
     # seq2.volt = 0  # [V], voltage per channel
-    seq2.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
+    # seq2.ampl = 10  # [%], amplitude. NOTE: DIFFERENT THAN SC
+
+# Check if available channels is equal to the number of elements of the transducer
+elif seq1.driving_sys.available_ch != seq1.transducer.elements:
+    logger.error(f'Number of available channels ({seq1.driving_sys.available_ch}) is not equal to' +
+                 f' the number of elements of the transducer ({seq1.transducer.elements}). ' +
+                 f'Equipment configuration {seq1.driving_sys.name} - {seq1.transducer.name} does ' +
+                 'not seem to be compatible or use_two_transducers is incorrectly False.')
+    sys.exit()
 
 # # timing parameters # #
 # you can use the TUS Calculator to visualize the timing parameters:
@@ -111,7 +129,7 @@ seq1.pulse_dur = 10  # [ms], pulse duration
 seq1.pulse_rep_int = 200  # [ms], pulse repetition interval
 
 # pulse ramping
-# to check available ramp shapes: print(seq.get_ramp_shapes())
+# to check available ramp shapes: print(seq1.get_ramp_shapes())
 # choose one ramp shape from that list as input
 seq1.pulse_ramp_shape = 'Rectangular - no ramping'
 
@@ -162,7 +180,7 @@ else:
 
 from fus_driving_systems.igt import igt_ds
 
-igt_driving_sys = igt_ds.IGT()
+igt_driving_sys = igt_ds.IGT(log_dir)
 
 try:
     igt_driving_sys.connect(seq1.driving_sys.connect_info, log_dir, filename)
