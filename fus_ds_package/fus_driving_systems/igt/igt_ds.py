@@ -63,10 +63,10 @@ class IGT(ds.ControlDrivingSystem):
     Attributes:
         connected (bool): Indicates whether the system is connected.
         gen: Generator object.
+        sent_seq (dict): list with sent sequences
         fus: FUSSystem object for the IGT ultrasound driving system.
         listener: ExecListener object for event listening.
         n_channels (int): Number of channels.
-        total_sequence_duration_ms (float): Total duration of the sequence in milliseconds.
     """
 
     def __init__(self, log_dir='C:\\Temp'):
@@ -81,16 +81,10 @@ class IGT(ds.ControlDrivingSystem):
         with open(fault_handler_path, "w") as f:
             faulthandler.enable(file=f)
 
-        self.sent_seq_nums = []
+        self.sent_seqs = {}
         self.fus = None
         self.listener = None
         self.n_channels = 0
-        self.total_sequence_duration_ms = 0
-
-        self.seq = None
-
-        self.n_pulse_train_rep = 0
-        self.pulse_train_delay = 0
 
     def is_sequence_sent(self, seq_num):
         """
@@ -100,14 +94,26 @@ class IGT(ds.ControlDrivingSystem):
             bool: True if a sequence has been sent, False otherwise.
         """
 
-        return seq_num in self.sent_seq_nums
+        return seq_num in self.sent_seqs.keys()
 
-    def register_sent_sequence(self, seq_num):
+    def register_sent_sequence(self, seq_num, seq, n_pulse_train_rep, pulse_train_delay):
         """
         Adds the sequence number of the sent sequence to the sent sequence list.
+            seq: list of pulses representing a pulse train
+            n_pulse_train_rep: number of executions of one pulse train
+            pulse_train_delay: pulse train delay in miliseconds
+            total_sequence_duration_ms (float): Total duration of the sequence in milliseconds.
         """
 
-        self.sent_seq_nums.append(seq_num)
+        self.sent_seqs[seq_num] = {}
+        self.sent_seqs[seq_num]['seq'] = seq
+        self.sent_seqs[seq_num]['n_pulse_train_rep'] = n_pulse_train_rep
+        self.sent_seqs[seq_num]['pulse_train_delay'] = pulse_train_delay
+
+        total_sequence_duration_ms = unifus.sequenceDurationMs(seq, n_pulse_train_rep,
+                                                               pulse_train_delay)
+
+        self.sent_seqs[seq_num]['total_sequence_duration_ms'] = total_sequence_duration_ms + 100
 
     def connect(self, connect_info, log_dir='C:\\Temp', log_name='standalone_igt', attempt=0):
         """
@@ -118,7 +124,7 @@ class IGT(ds.ControlDrivingSystem):
         """
 
         # When no connection, it is assumed that all sent sequences aren't available (anymore)
-        self.sent_seq_nums = []
+        self.sent_seqs = {}
 
         try:
             # Establish connection with driving system
@@ -270,15 +276,14 @@ class IGT(ds.ControlDrivingSystem):
                 pulse = self._define_two_seq_pulse(seq1, seq2)
 
             # define pulse train
-            self._define_pulse_train(seq1, pulse)
+            pulse_train_seq, pulse_train_delay = self._define_pulse_train(seq1, pulse)
 
             # Define pulse train repetition
             # number of executions of one pulse train
-            self.n_pulse_train_rep = math.floor(seq1.pulse_train_rep_dur /
-                                                seq1.pulse_train_rep_int)
+            n_pulse_train_rep = math.floor(seq1.pulse_train_rep_dur / seq1.pulse_train_rep_int)
 
             # Apply ramping
-            if seq1.pulse_ramp_shape != config['General']['Ramp shape.rect']:
+            if seq1.pulse_ramp_shape != config['General']['Ramp shape.rect'] and seq1.ampl > 0:
                 self._apply_ramping(seq1)
             else:
                 self.gen.setPulseModulation([], 0, [], 0)  # disable any modulation
@@ -295,12 +300,10 @@ class IGT(ds.ControlDrivingSystem):
             # gen.setParam (unifus.GenParam.MultiplexerValue, 3);
 
             # Upload the sequence
-            self.gen.sendSequence(seq1.seq_num, self.seq)
+            self.gen.sendSequence(seq1.seq_num, pulse_train_seq)
 
-            self.total_sequence_duration_ms = (100 + unifus.sequenceDurationMs(
-                self.seq, self.n_pulse_train_rep, self.pulse_train_delay))
-
-            self.register_sent_sequence(seq1.seq_num)
+            self.register_sent_sequence(seq1.seq_num, pulse_train_seq, n_pulse_train_rep,
+                                        pulse_train_delay)
 
         else:
             logger.warning("No connection with driving system.")
@@ -392,11 +395,15 @@ class IGT(ds.ControlDrivingSystem):
                         elif seq1.pulse_dur >= 0.001 + ramp_transient_t:  # [ms]:
                             exec_flags |= unifus.ExecFlag.MeasureTimings  # or NONE
 
+                    sent_seq_info = self.sent_seqs.get(seq1.seq_num, {})
+                    n_pulse_train_rep = sent_seq_info.get('n_pulse_train_rep')
+                    pulse_train_delay = sent_seq_info.get('pulse_train_delay')
+
                     # Determining trigger flag
                     if seq1.trigger_option == config['General']['Trigger option.seq']:
                         exec_flags |= unifus.ExecFlag.TriggerOneSequence
-                        self.n_pulse_train_rep = seq1.n_triggers
-                        self.pulse_train_delay = 0  # trigger will determine delay
+                        n_pulse_train_rep = seq1.n_triggers
+                        pulse_train_delay = 0  # trigger will determine delay
 
                     elif seq1.trigger_option == config['General']['Trigger option.ptr']:
                         exec_flags |= unifus.ExecFlag.TriggerAllSequences
@@ -406,8 +413,8 @@ class IGT(ds.ControlDrivingSystem):
                                      f'implemented trigger options: {seq1.get_trigger_options()}.')
                         sys.exit()
 
-                    self.gen.prepareSequence(seq1.seq_num, self.n_pulse_train_rep,
-                                             self.pulse_train_delay, exec_flags)
+                    self.gen.prepareSequence(seq1.seq_num, n_pulse_train_rep, pulse_train_delay,
+                                             exec_flags)
 
                     self.gen.startSequence()
                     logger.info('Wait for trigger')
@@ -459,11 +466,13 @@ class IGT(ds.ControlDrivingSystem):
                         elif seq1.pulse_dur >= 0.001 + ramp_transient_t:  # [ms]:
                             exec_flags |= unifus.ExecFlag.MeasureTimings  # or NONE
 
-                    self.gen.prepareSequence(seq1.seq_num, self.n_pulse_train_rep,
-                                             self.pulse_train_delay, exec_flags)
+                    sent_seq_info = self.sent_seqs.get(seq1.seq_num, {})
+                    self.gen.prepareSequence(seq1.seq_num, sent_seq_info.get('n_pulse_train_rep'),
+                                             sent_seq_info.get('pulse_train_delay'), exec_flags)
 
                     self.gen.startSequence()
-                    self.listener.waitSequence(self.total_sequence_duration_ms / 1000.0)
+                    self.listener.waitSequence(sent_seq_info.get('total_sequence_duration_ms') /
+                                               1000.0)
 
                 except Exception as why:
                     logger.error("Exception: %s", str(why))
@@ -556,17 +565,23 @@ class IGT(ds.ControlDrivingSystem):
             sequence (Sequence): The sequence object containing ultrasound parameters.
             pulse (unifus.Pulse): The defined pulse.
 
+        Returns:
+            seq: list of pulses representing a pulse train
+            pulse_train_delay: pulse train delay in miliseconds
+
         """
 
         # number of executions of one pulse train
         n_pulse_train = math.floor(sequence.pulse_train_dur / sequence.pulse_rep_int)
 
         # Define a complete sequence
-        self.seq = []
-        self.seq += n_pulse_train * [pulse]
+        seq = []
+        seq += n_pulse_train * [pulse]
 
         # milliseconds between pulse trains
-        self.pulse_train_delay = sequence.pulse_train_rep_int - sequence.pulse_train_dur
+        pulse_train_delay = sequence.pulse_train_rep_int - sequence.pulse_train_dur
+
+        return seq, pulse_train_delay
 
     def _set_phases(self, pulse, focus, steer_info, natural_foc, dephasing_degree):
         """

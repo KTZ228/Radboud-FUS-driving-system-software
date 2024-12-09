@@ -23,6 +23,7 @@
 - [💻 Getting Started](#getting-started)
   - [Installation](#install)
   - [Usage](#usage)
+- [🌟 Installation of new release](#install-new-release)
 - [🔭 Future Features](#future-features)
 - [🤝 Contributing](#contributing)
 - [📝 License](#license)
@@ -83,15 +84,23 @@ To get a local copy up and running, follow these steps.
 *Step 1: Clone this repository to your desired folder*
 - Git terminal
 	```
-	sh
 	cd my-folder
 	git clone git@github.com:Donders-Institute/Radboud-FUS-driving-system-software.git
 	```
+	
+	Once cloned, you can checkout the tag for the desired release:
+	```
+	git checkout [tag_name]
+	```
+
 - GitHub Desktop
 	1. Click on 'Current repository'.
 	2. Click on 'Add' and select 'Clone repository...'.
 	3. Choose 'URL' and paste the following repository URL: [https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git](https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git)
 	4. Choose your desired folder and clone the repository.
+
+- GitHub\
+	Download the source code directly for the latest release. Visit the [Latest Release](https://github.com/Donders-Institute/Radboud-FUS-driving-system-software/releases/latest), and download the Source code (zip) file. Extract it to your desired location and proceed with the installation steps.
 
 *Step 2: Download Python 3.10* \
 Ensure you have Python 3.10 installed and accessible from your command line. If Python is not installed, download it from the [official Python website](https://www.python.org/downloads/release/python-31011/). It is not necessary to add Python to your system's PATH during installation, as virtual environments allow you to manage and switch between Python versions without affecting other projects or code outside the environment.
@@ -201,6 +210,54 @@ How to use the script:
 		```
 		start_venv_and_ide.bat "" "" "DCCN"
 		```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+# 🌟 Installation of new release <a name="install-new-release"></a>
+
+*(Optional) Step 1: Backup your current installation* \
+To avoid losing your custom standalone scripts:
+- Create a backup by copying your current installation directory to a safe location.
+- Save any custom standalone scripts for reuse.
+
+*Step 2: Clone the repository to your desired folder*
+- Git terminal
+	```
+	cd my-folder
+	git clone git@github.com:Donders-Institute/Radboud-FUS-driving-system-software.git
+	```
+	
+	Once cloned, you can checkout the tag for the desired release:
+	```
+	git checkout [tag_name]
+	```
+- GitHub Desktop
+	1. Click on 'Current repository'.
+	2. Click on 'Add' and select 'Clone repository...'.
+	3. Choose 'URL' and paste the following repository URL: [https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git](https://github.com/Donders-Institute/Radboud-FUS-driving-system-software.git)
+	4. Choose your desired folder and clone the repository.
+	
+- GitHub\
+	Download the source code directly for the latest release. Visit the [Latest Release](https://github.com/Donders-Institute/Radboud-FUS-driving-system-software/releases/latest), and download the Source code (zip) file. Extract it to your desired location and proceed with the installation steps.
+
+*Step 3: Install the new release in your virtual environment*
+- Open your command prompt and activate your virtual environment:
+	```
+	call [VENV_PATH]\Scripts\activate
+	```
+- Navigate to the cloned repository's directory:
+	```
+	cd your_directory_with_cloned_repository
+	```
+	
+- Install the package:
+	```
+	pip install .\fus_ds_package
+	```
+
+*(Optional) Step 4: Restore your custom standalone scripts*
+- If you have custom standalone scripts, copy them to the following location: your_directory_with_cloned_repository\standalone_driving_system_software.
+- Review the release notes to check if any modifications are needed for your scripts to remain compatible.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
