@@ -252,22 +252,22 @@ class Sequence():
         self._timing_param = {
             # # Pulse
             'pulse_dur': 0.25,  # [ms]
-            'pulse_rep_int': 200,  # [ms]
+            'pulse_rep_int': 20,  # [ms]
 
             # Rectangular - no ramping, Linear, Tukey
             'pulse_ramp_shape': config['General']['Ramp shapes'].split('\n')[0],
             'pulse_ramp_dur': 0,  # [ms]
 
             # # Pulse train
-            'pulse_train_dur': 200,  # [ms]
-            'pulse_train_rep_int': 200,  # [ms]
+            'pulse_train_dur': 20,  # [ms]
+            'pulse_train_rep_int': 20,  # [ms]
 
             # Rectangular - no ramping, Linear, Tukey
             # 'pulse_train_ramp_shape': config['General']['Ramp shapes'].split('\n')[0],
             # 'pulse_train_ramp_dur': 0,  # [ms]
 
             # Pulse train repetition
-            'pulse_train_rep_dur': 200,  # [ms]
+            'pulse_train_rep_dur': 20,  # [ms]
 
             # Rectangular - no ramping, Linear, Tukey
             # 'pulse_train_rep_ramp_shape': config['General']['Ramp shapes'].split('\n')[0],
