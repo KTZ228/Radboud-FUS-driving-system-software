@@ -114,7 +114,7 @@ SC_DS = ['203-035', '105-010']
 config['Equipment.Manufacturer.SC']['Equipment - Driving systems'] = '\n'.join(SC_DS)
 
 SC_TRAN_2CH = ['CTX-250-009', 'CTX-250-014', 'CTX-500-006']
-SC_TRAN_4CH = ['CTX-250-001', 'CTX-250-026', 'CTX-500-024', 'CTX-500-026']
+SC_TRAN_4CH = ['CTX-250-001', 'CTX-250-026', 'CTX-500-024', 'CTX-500-026', 'DPX-500-022']
 
 SC_TRANS = SC_TRAN_2CH + SC_TRAN_4CH
 
@@ -199,7 +199,7 @@ config['Equipment.Driving system.' + SC_DS[0]]['Name'] = ('NeuroFUS 1 x 4 ch. or
                                                           + 'junior ' + SC_DS[0])
 config['Equipment.Driving system.' + SC_DS[0]]['Manufacturer'] = SONIC_CONCEPTS
 config['Equipment.Driving system.' + SC_DS[0]]['Available channels'] = str(4)
-config['Equipment.Driving system.' + SC_DS[0]]['Connection info'] = 'COM7'
+config['Equipment.Driving system.' + SC_DS[0]]['Connection info'] = 'COM6'
 config['Equipment.Driving system.' + SC_DS[0]]['Transducer compatibility'] = str('\n'.join(
     SC_TRANS + DUMMIES))
 config['Equipment.Driving system.' + SC_DS[0]]['Active?'] = str(True)
@@ -209,7 +209,7 @@ config['Equipment.Driving system.' + SC_DS[1]]['Name'] = ('NeuroFUS 1 x 4 ch. or
                                                           + 'senior ' + SC_DS[1])
 config['Equipment.Driving system.' + SC_DS[1]]['Manufacturer'] = SONIC_CONCEPTS
 config['Equipment.Driving system.' + SC_DS[1]]['Available channels'] = str(4)
-config['Equipment.Driving system.' + SC_DS[1]]['Connection info'] = 'COM8'
+config['Equipment.Driving system.' + SC_DS[1]]['Connection info'] = 'COM5'
 config['Equipment.Driving system.' + SC_DS[1]]['Transducer compatibility'] = str('\n'.join(
     SC_TRANS + DUMMIES))
 config['Equipment.Driving system.' + SC_DS[1]]['Active?'] = str(True)
@@ -484,6 +484,17 @@ config['Equipment.Transducer.' + SC_TRANS[6]]['Steer information'] = str(os.path
     'CTX-500-026 - TPO-105-010 - Steer Table.xlsx'))  # should be in the same directory as code
 config['Equipment.Transducer.' + SC_TRANS[6]]['Active?'] = str(True)
 
+config['Equipment.Transducer.' + SC_TRANS[7]] = {}
+config['Equipment.Transducer.' + SC_TRANS[7]]['Name'] = 'NeuroFUS 4 ch. DPX-500-022'
+config['Equipment.Transducer.' + SC_TRANS[7]]['Manufacturer'] = SONIC_CONCEPTS
+config['Equipment.Transducer.' + SC_TRANS[7]]['Elements'] = str(4)
+config['Equipment.Transducer.' + SC_TRANS[7]]['Fund. freq.'] = str(500)  # [kHz]
+config['Equipment.Transducer.' + SC_TRANS[7]]['Natural focus'] = str(0)  # [mm] only for Imasonic
+config['Equipment.Transducer.' + SC_TRANS[7]]['Exit plane - first element dist.'] = str(0)  # [mm] only for Imasonic
+config['Equipment.Transducer.' + SC_TRANS[7]]['Min. focus'] = str(0)  # [mm], wrt exit plane
+config['Equipment.Transducer.' + SC_TRANS[7]]['Max. focus'] = str(120)  # [mm], wrt exit plane
+config['Equipment.Transducer.' + SC_TRANS[7]]['Steer information'] = '' # should be in the same directory as code
+config['Equipment.Transducer.' + SC_TRANS[7]]['Active?'] = str(True)
 
 #######################################################################################
 # Imasonic - Tranducers
