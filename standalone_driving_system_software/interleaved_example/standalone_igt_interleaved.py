@@ -75,6 +75,7 @@ try:
     one_interleaved_session_ms = seq1.pulse_train_rep_dur + seq3.pulse_train_rep_dur
     n_sessions = round(total_duration_s / (one_interleaved_session_ms/1000))
     for i in range(n_sessions):
+        print(f'\n session {i} of {n_sessions} \n')
         igt_driving_sys.execute_sequence(seq1, seq2)
         igt_driving_sys.execute_sequence(seq3, seq4)
 
