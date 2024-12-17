@@ -99,7 +99,7 @@ class SonicConcepts(ds.ControlDrivingSystem):
             self._reset_parameters()
 
             self._set_operating_freq(sequence.oper_freq)
-            self._set_focus(sequence.focus_wrt_mid_bowl)
+            self._set_focus(sequence.focus_wrt_exit_plane)
             self._set_global_power(sequence.global_power)
             self._set_burst_and_period(sequence.pulse_dur, sequence.pulse_rep_int)
             self._set_timer(sequence.pulse_train_dur)
@@ -176,7 +176,7 @@ class SonicConcepts(ds.ControlDrivingSystem):
         logger.info("Sent to gen: %s", command.strip())
         time.sleep(sleep_time_s)
         response = self.gen.readline().decode("ascii").rstrip()
-        logger.info("Response from gen: %response", response)
+        logger.info(f"Response from gen: {response}")
 
         if response == 'E2':
             logger.error("Error E2")

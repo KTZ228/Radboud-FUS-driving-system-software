@@ -252,22 +252,22 @@ class Sequence():
         self._timing_param = {
             # # Pulse
             'pulse_dur': 0.25,  # [ms]
-            'pulse_rep_int': 200,  # [ms]
+            'pulse_rep_int': 20,  # [ms]
 
             # Rectangular - no ramping, Linear, Tukey
             'pulse_ramp_shape': config['General']['Ramp shapes'].split('\n')[0],
             'pulse_ramp_dur': 0,  # [ms]
 
             # # Pulse train
-            'pulse_train_dur': 200,  # [ms]
-            'pulse_train_rep_int': 200,  # [ms]
+            'pulse_train_dur': 20,  # [ms]
+            'pulse_train_rep_int': 20,  # [ms]
 
             # Rectangular - no ramping, Linear, Tukey
             # 'pulse_train_ramp_shape': config['General']['Ramp shapes'].split('\n')[0],
             # 'pulse_train_ramp_dur': 0,  # [ms]
 
             # Pulse train repetition
-            'pulse_train_rep_dur': 200,  # [ms]
+            'pulse_train_rep_dur': 20,  # [ms]
 
             # Rectangular - no ramping, Linear, Tukey
             # 'pulse_train_rep_ramp_shape': config['General']['Ramp shapes'].split('\n')[0],
@@ -498,6 +498,12 @@ class Sequence():
                                       True, True, True, False)
         if is_validated:
             self._n_triggers = n_triggers
+            
+            # set temporarily the pulse train repetition parameters equal to
+            # the pulse train duration to prevent default being lower than 
+            # pulse train duration
+            self.pulse_train_rep_int = self.pulse_train_dur
+            self.pulse_train_rep_dur = self.pulse_train_dur
 
     @property
     def transducer(self):
@@ -1460,7 +1466,12 @@ class Sequence():
                                       True, True, True, False)
         if is_validated:
             self._timing_param['pulse_train_dur'] = pulse_train_dur
-
+            
+            if self._driving_sys.manufact == config['Equipment.Manufacturer.SC']['Name']:
+                # SC doesn't have a pulse train repetition definition so set to None
+                
+                self._timing_param['pulse_train_rep_int'] = None
+                self._timing_param['pulse_train_rep_dur'] = None
     @property
     def pulse_train_rep_int(self):
         """

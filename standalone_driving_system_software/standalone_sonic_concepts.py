@@ -29,6 +29,8 @@ logger = initialize_logger(log_dir, filename)
 # import the 'fus_driving_systems - sequence' into your code
 ##############################################################################
 
+import sys
+
 from fus_driving_systems import driving_system, transducer
 from fus_driving_systems import sequence
 
@@ -43,20 +45,20 @@ seq = sequence.Sequence()
 # equipment
 # to check available driving systems: print(driving_system.get_ds_serials())
 # choose one driving system from that list as input
-seq.driving_sys = '203-035'
-seq.driving_sys.connect_info = 'COM3'  # COM port the driving system is connected to
+seq.driving_sys = '105-010'
+seq.driving_sys.connect_info = 'COM5'  # COM port the driving system is connected to
 
 # set wait_for_trigger to true if you want to use trigger
-seq.wait_for_trigger = True
+seq.wait_for_trigger = False
 
 # to check available transducers: print(transducer.get_tran_serials())
 # choose one transducer from that list as input
-seq.transducer = 'CTX-250-009'
+seq.transducer = 'CTX-500-026'
 
 # set general parameters
-seq.oper_freq = 250  # [kHz], operating frequency
-seq.focus = 40  # [mm], focal depth
-seq.global_power = 5  # [W], global power. NOTE: DIFFERENT THAN IGT
+seq.oper_freq = 500  # [kHz], operating frequency
+seq.focus_wrt_exit_plane = 40  # [mm], focal depth
+seq.global_power = 2.5  # [W], global power. NOTE: DIFFERENT THAN IGT
 
 # # timing parameters # #
 # you can use the TUS Calculator to visualize the timing parameters:
@@ -104,7 +106,7 @@ logger.info(f'The following sequence is used: {seq}')
 
 from fus_driving_systems.sonic_concepts import sonic_concepts_ds
 
-sc_ds = sonic_concepts_ds.SC()
+sc_ds = sonic_concepts_ds.SonicConcepts()
 
 try:
     sc_ds.connect(seq.driving_sys.connect_info)
