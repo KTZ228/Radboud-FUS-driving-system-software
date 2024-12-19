@@ -26,16 +26,16 @@ SOFTWARE.
 **Attribution Notice**:
 If you use this kit in your research or project, please include the following attribution:
 Margely Cornelissen, Stein Fekkes (Radboud University, Nijmegen, The Netherlands) & Erik Dumont
-(Image Guided Therapy, Pessac, France) (2024), Radboud FUS measurement kit (version 0.8),
+(Image Guided Therapy, Pessac, France) (2024), Radboud FUS measurement kit (version 1.0),
 https://github.com/Donders-Institute/Radboud-FUS-measurement-kit
 """
 
 from setuptools import setup, find_packages
 
 setup(name='fus_driving_systems',
-      version='1.0.0',
+      version='1.0.2',
       description='Abstract structure to communicate with different FUS driving systems',
-      url='https://gitlab.socsci.ru.nl/fus-initiative/fus-driving-system-software',
+      url='https://github.com/Donders-Institute/Radboud-FUS-driving-system-software',
       author='Margely Cornelissen',
       author_email='margely.cornelissen@ru.nl',
       packages=find_packages(),
